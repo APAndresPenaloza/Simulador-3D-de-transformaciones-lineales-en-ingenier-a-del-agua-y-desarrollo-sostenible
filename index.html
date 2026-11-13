@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador 3D de transformaciones lineales en ingeniería del agua</title>
+<style>
+:root{
+  --surface:#fcfcfb; --surface-2:#f1f1ee; --border:#d9d8d2;
+  --text:#0b0b0b; --text-2:#52514e; --muted:#8a8984;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s7:#6250d6; --s8:#e34948;
+  --good:#008300; --warn:#c98500; --bad:#c62828;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--surface-2);color:var(--text);line-height:1.45}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 22px}
+header h1{margin:0;font-size:1.25rem;font-weight:650}
+header p{margin:4px 0 0;color:var(--text-2);font-size:.9rem}
+nav{display:flex;gap:6px;padding:10px 22px 0;background:var(--surface);border-bottom:1px solid var(--border)}
+nav button{border:1px solid var(--border);border-bottom:none;background:var(--surface-2);padding:9px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.95rem;color:var(--text-2)}
+nav button.active{background:var(--surface);color:var(--text);font-weight:600;border-color:var(--border);position:relative;top:1px}
+#banner{margin:12px 22px 0;padding:8px 12px;border-radius:8px;font-size:.9rem;display:none}
+#banner.ok{display:block;background:#e6f4e6;color:#1b5e20;border:1px solid #b7dcb7}
+#banner.fail{display:block;background:#fdecea;color:#7f1d1d;border:1px solid #f5c2c0}
+main{padding:14px 22px 40px}
+.module{display:none}
+.module.active{display:block}
+.grid{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:16px}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:1rem;margin:0 0 8px;font-weight:650}
+.card h3{font-size:.9rem;margin:12px 0 6px;color:var(--text-2);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.what{background:#eef5fd;border-left:4px solid var(--s1);padding:8px 12px;border-radius:0 8px 8px 0;font-size:.9rem;color:var(--text-2);margin-bottom:10px}
+table.mat{border-collapse:collapse;font-family:var(--mono);font-size:.82rem}
+table.mat th{font-weight:500;color:var(--muted);padding:2px 4px;font-family:system-ui;font-size:.75rem;white-space:nowrap}
+table.mat td{padding:1px}
+table.mat input{width:58px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:.82rem;text-align:right;background:#fff}
+table.mat input:focus{outline:2px solid var(--s1);border-color:transparent}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.row label{font-size:.85rem;color:var(--text-2)}
+input[type=number].small{width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;font-family:var(--mono)}
+button.btn{border:1px solid var(--border);background:var(--surface);padding:6px 11px;border-radius:7px;cursor:pointer;font-size:.85rem}
+button.btn:hover{background:var(--surface-2)}
+button.btn.primary{background:var(--s1);color:#fff;border-color:var(--s1)}
+button.btn.scen{border-color:#bcd3f0;background:#eef5fd;color:#1c4f8f}
+.prop{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.88rem}
+.prop .k{font-family:var(--mono);color:var(--text-2);white-space:nowrap}
+.prop .v{}
+.prop .v small{display:block;color:var(--muted);font-size:.8rem}
+.vec{font-family:var(--mono);font-size:.85rem;background:var(--surface-2);padding:6px 8px;border-radius:6px;overflow-x:auto;white-space:nowrap}
+.ind{padding:10px 12px;border-radius:8px;font-size:.92rem;border:1px solid var(--border)}
+.ind.good{background:#e6f4e6;border-color:#b7dcb7}
+.ind.warn{background:#fff6e0;border-color:#f0d58a}
+.ind.bad{background:#fdecea;border-color:#f5c2c0}
+.ind b{display:block;font-size:1.05rem;margin-bottom:2px}
+svg text{font-family:system-ui,sans-serif}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--text-2);margin-top:4px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;background:var(--c)}
+.slider{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:.85rem;margin:4px 0}
+.slider input{width:100%}
+footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
+.tbl{width:100%;border-collapse:collapse;font-size:.82rem;font-family:var(--mono)}
+.tbl th,.tbl td{border-bottom:1px solid var(--border);padding:3px 6px;text-align:right}
+.tbl th{font-family:system-ui;color:var(--muted);font-weight:500}
+.view3d{width:100%;height:400px;border-radius:8px;overflow:hidden;background:#eaf2f8;touch-action:none;cursor:grab;position:relative}
+.view3d:active{cursor:grabbing}
+.h3d{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.h3d h2{margin:0}.h3d span{font-size:.8rem;color:var(--muted)}
+.tbl td:first-child,.tbl th:first-child{text-align:left}
+</style>
+</head>
+<body>
+<header>
+  <h1>Simulador 3D de transformaciones lineales en ingeniería del agua y desarrollo sostenible</h1>
+  <p>Tres sistemas hídricos modelados como T(<b>x</b>) = A<b>x</b>. Edite la matriz A y el vector de entrada, cambie de escenario y observe qué propiedad del álgebra lineal gobierna cada sistema.</p>
+</header>
+<nav>
+  <button class="active" data-m="red">1 · Red de distribución (matriz de incidencia)</button>
+  <button data-m="emb">2 · Embalse (cadena de Markov)</button>
+  <button data-m="pla">3 · Planta de tratamiento (mezcla y atenuación)</button>
+</nav>
+<div id="banner"></div>
+<main>
+
+<!-- ============ MÓDULO 1: RED ============ -->
+<section class="module active" id="m-red">
+<div class="grid">
+<div>
+  <div class="card">
+    <h2>Entradas</h2>
+    <div class="what"><b>¿Qué estás viendo?</b> A es la <i>matriz de incidencia</i> nodo‑tubería: +1 si la tubería entra al nodo, −1 si sale. El balance de masa de toda la red se escribe como una sola transformación lineal: A·<b>q</b> = <b>d</b>, donde <b>q</b> son los caudales en las tuberías (L/s) y <b>d</b> la demanda neta en cada nodo (negativa en la fuente).</div>
+    <div class="row">
+      <label>Nodos <input class="small" type="number" id="red-n" min="3" max="8" value="5"></label>
+      <label>Tuberías <input class="small" type="number" id="red-m" min="2" max="12" value="6"></label>
+      <button class="btn" id="red-resize">Redimensionar</button>
+    </div>
+    <h3>Matriz de incidencia A (nodos × tuberías)</h3>
+    <div id="red-A"></div>
+    <h3>Demanda neta d (L/s) · negativa = fuente</h3>
+    <div id="red-d"></div>
+    <h3>Capacidad de la fuente (L/s)</h3>
+    <div class="row"><input class="small" type="number" id="red-cap" value="60" step="1"></div>
+    <h3>Escenarios</h3>
+    <div class="row">
+      <button class="btn scen" data-s="base">Caso base</button>
+      <button class="btn scen" data-s="demanda">Demanda +30 %</button>
+      <button class="btn scen" data-s="sequia">Sequía (fuente 45 L/s)</button>
+      <button class="btn scen" data-s="fuga">Fuga en N4 (+8 L/s)</button>
+    </div>
+    <div class="row"><button class="btn primary" id="red-calc">Calcular</button><button class="btn" id="red-reset">Reiniciar</button><button class="btn" id="red-csv">Exportar CSV</button><button class="btn" id="red-json">Exportar JSON</button></div>
+  </div>
+</div>
+<div>
+  <div class="card">
+    <div class="h3d"><h2>Vista 3D de la red</h2><span>Arrastre para rotar · rueda para acercar <button class="btn" data-pause>⏸ Pausar</button> <button class="btn" data-home="red">⟲ Vista</button></span></div>
+    <div class="view3d" id="red-3d"></div>
+    <p style="font-size:.85rem;color:var(--text-2);margin:8px 0 0">Cada tubería es una columna de A. El grosor y la velocidad de las partículas son proporcionales a |q|; naranja indica caudal invertido. Las columnas violetas sobre los nodos son las demandas d (la imagen de la transformación).</p>
+  </div>
+  <div class="card">
+    <h2>Resultado T(q) = A·q y solución de caudales</h2>
+    <div class="what">Como el rango de A es menor que el número de tuberías, el sistema A·q = d tiene infinitas soluciones: q = q₀ + Σ αᵢ kᵢ, donde kᵢ son los vectores del <i>núcleo</i> (circulaciones cerradas que no alteran ningún balance). q₀ es la solución de norma mínima. Mueva los coeficientes αᵢ: el balance A·q sigue siendo d. En la práctica, las ecuaciones de energía (Hardy‑Cross) escogen un punto dentro de este espacio.</div>
+    <div id="red-sliders"></div>
+    <h3>Caudales q (L/s)</h3><div class="vec" id="red-q"></div>
+    <h3>Verificación A·q (debe ser d)</h3><div class="vec" id="red-Aq"></div>
+    <div id="red-ind" class="ind" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h2>Visualización de la red</h2>
+    <div id="red-svg"></div>
+    <div class="legend"><span style="--c:var(--s1)">Caudal en sentido de la tubería</span><span style="--c:var(--s2)">Caudal invertido (q &lt; 0)</span><span style="--c:var(--s3)">Fuente</span></div>
+  </div>
+  <div class="card">
+    <h2>Propiedades de la transformación</h2>
+    <div class="prop" id="red-prop"></div>
+  </div>
+</div>
+</div>
+</section>
+
+<!-- ============ MÓDULO 2: EMBALSE ============ -->
+<section class="module" id="m-emb">
+<div class="grid">
+<div>
+  <div class="card">
+    <h2>Entradas</h2>
+    <div class="what"><b>¿Qué estás viendo?</b> El nivel del embalse se clasifica en cuatro estados. La columna j de A contiene las probabilidades de pasar <i>desde</i> el estado j a cada estado en un mes (cada columna suma 1: matriz estocástica). La distribución de probabilidad del mes k+1 es la transformación lineal x<sub>k+1</sub> = A·x<sub>k</sub>.</div>
+    <h3>Matriz de transición A (hacia × desde)</h3>
+    <div id="emb-A"></div>
+    <h3>Estado inicial x₀ (probabilidades)</h3>
+    <div id="emb-x"></div>
+    <div class="slider"><label>Meses a simular</label><input type="range" id="emb-k" min="1" max="36" value="12"><span id="emb-kv">12</span></div>
+    <h3>Umbral de sostenibilidad</h3>
+    <div class="row"><label>Probabilidad máxima aceptable de Bajo + Crítico a largo plazo</label><input class="small" type="number" id="emb-th" value="0.30" step="0.05" min="0" max="1"></div>
+    <h3>Escenarios</h3>
+    <div class="row">
+      <button class="btn scen" data-s="base">Caso base</button>
+      <button class="btn scen" data-s="sequia">Sequía prolongada</button>
+      <button class="btn scen" data-s="gestion">Gestión de la demanda</button>
+    </div>
+    <div class="row"><button class="btn primary" id="emb-calc">Calcular</button><button class="btn" id="emb-reset">Reiniciar</button><button class="btn" id="emb-csv">Exportar CSV</button><button class="btn" id="emb-json">Exportar JSON</button></div>
+  </div>
+</div>
+<div>
+  <div class="card">
+    <div class="h3d"><h2>Vista 3D del embalse</h2><span>Arrastre para rotar · rueda para acercar <button class="btn" data-pause>⏸ Pausar</button> <button class="btn" data-home="emb">⟲ Vista</button></span></div>
+    <div class="view3d" id="emb-3d"></div>
+    <p style="font-size:.85rem;color:var(--text-2);margin:8px 0 0">Izquierda: el nivel esperado del embalse evoluciona mes a mes al aplicar A repetidamente. Derecha: cada fila de barras es un estado y cada columna un mes; la superficie se aplana al acercarse al autovector π.</p>
+  </div>
+  <div class="card">
+    <h2>Resultado: evolución mensual x<sub>k</sub> = Aᵏ·x₀</h2>
+    <div class="what">El estado de largo plazo del embalse no depende de x₀: es el <i>autovector</i> de A asociado al autovalor λ = 1 (vector estacionario π). El segundo autovalor |λ₂| mide cuánto tarda el sistema en olvidar la condición inicial. Esa es la idea fuerza: la sostenibilidad del embalse está escrita en los autovalores de A.</div>
+    <div id="emb-svg"></div>
+    <div class="legend"><span style="--c:var(--s1)">Alto</span><span style="--c:var(--s3)">Medio</span><span style="--c:var(--s4)">Bajo</span><span style="--c:var(--s8)">Crítico</span></div>
+    <h3>Distribución en el mes k</h3><div class="vec" id="emb-xk"></div>
+    <h3>Vector estacionario π (autovector de λ = 1)</h3><div class="vec" id="emb-pi"></div>
+    <div id="emb-ind" class="ind" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h2>Propiedades de la transformación</h2>
+    <div class="prop" id="emb-prop"></div>
+  </div>
+</div>
+</div>
+</section>
+
+<!-- ============ MÓDULO 3: PLANTA ============ -->
+<section class="module" id="m-pla">
+<div class="grid">
+<div>
+  <div class="card">
+    <h2>Entradas</h2>
+    <div class="what"><b>¿Qué estás viendo?</b> Tres unidades de tratamiento (homogeneización, reactor, sedimentador). A<sub>ij</sub> es la fracción de la carga contaminante de la unidad j que pasa a la unidad i en un ciclo; lo que falta para que la columna sume 1 es la fracción <i>removida</i>. La carga en el ciclo siguiente es la transformación lineal x<sub>k+1</sub> = A·x<sub>k</sub>.</div>
+    <h3>Matriz de mezcla y transferencia A (hacia × desde)</h3>
+    <div id="pla-A"></div>
+    <h3>Carga inicial x₀ (mg/L en cada unidad)</h3>
+    <div id="pla-x"></div>
+    <div class="slider"><label>Ciclos a simular</label><input type="range" id="pla-k" min="1" max="40" value="12"><span id="pla-kv">12</span></div>
+    <h3>Límite normativo de salida (mg/L)</h3>
+    <div class="row"><input class="small" type="number" id="pla-lim" value="30" step="1"></div>
+    <h3>Escenarios</h3>
+    <div class="row">
+      <button class="btn scen" data-s="base">Caso base</button>
+      <button class="btn scen" data-s="sobrecarga">Sobrecarga del reactor</button>
+      <button class="btn scen" data-s="mejora">Mejora de remoción</button>
+    </div>
+    <div class="row"><button class="btn primary" id="pla-calc">Calcular</button><button class="btn" id="pla-reset">Reiniciar</button><button class="btn" id="pla-csv">Exportar CSV</button><button class="btn" id="pla-json">Exportar JSON</button></div>
+  </div>
+</div>
+<div>
+  <div class="card">
+    <div class="h3d"><h2>Vista 3D de la planta</h2><span>Arrastre para rotar · rueda para acercar <button class="btn" data-pause>⏸ Pausar</button> <button class="btn" data-home="pla">⟲ Vista</button></span></div>
+    <div class="view3d" id="pla-3d"></div>
+    <p style="font-size:.85rem;color:var(--text-2);margin:8px 0 0">La altura del relleno de cada tanque es la carga x(k) en esa unidad. Las tuberías son las entradas no nulas de A (grosor ∝ fracción transferida). El anillo rojo marca el límite normativo en el sedimentador.</p>
+  </div>
+  <div class="card">
+    <h2>Resultado: carga por unidad en cada ciclo</h2>
+    <div class="what">Si todos los autovalores cumplen |λ| &lt; 1, la carga tiende a cero: la planta <i>atenúa</i> cualquier pulso. El autovalor dominante fija la velocidad: tras k ciclos la carga residual decae como |λ<sub>máx</sub>|ᵏ. Si A es invertible, de la carga medida a la salida puede reconstruirse la carga de entrada (trazabilidad): x₀ = A⁻¹·x₁.</div>
+    <div id="pla-svg"></div>
+    <div class="legend"><span style="--c:var(--s1)">Homogeneización</span><span style="--c:var(--s3)">Reactor</span><span style="--c:var(--s7)">Sedimentador (salida)</span><span style="--c:var(--s8)">Límite normativo</span></div>
+    <h3>Tabla de ciclos (mg/L)</h3>
+    <div style="max-height:220px;overflow:auto"><table class="tbl" id="pla-tbl"></table></div>
+    <div id="pla-ind" class="ind" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h2>Propiedades de la transformación</h2>
+    <div class="prop" id="pla-prop"></div>
+  </div>
+</div>
+</div>
+</section>
+</main>
+<footer>Simulador 3D de código abierto (HTML + JavaScript + Three.js). Validación interna: <span id="val-txt">pendiente</span>.</footer>
+
+<script src="three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script>
+/* =================== Álgebra lineal (JS puro) =================== */
+const LA = {
+  clone: M => M.map(r => r.slice()),
+  eye: n => Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)),
+  mul: (A,B) => A.map(r => B[0].map((_,j)=>r.reduce((s,a,k)=>s+a*B[k][j],0))),
+  mulv: (A,v) => A.map(r => r.reduce((s,a,k)=>s+a*v[k],0)),
+  T: A => A[0].map((_,j)=>A.map(r=>r[j])),
+  norm: v => Math.sqrt(v.reduce((s,a)=>s+a*a,0)),
+  rref(M, tol=1e-9){
+    const R = LA.clone(M), m=R.length, n=R[0].length, piv=[]; let r=0;
+    for(let c=0;c<n && r<m;c++){
+      let p=r; for(let i=r+1;i<m;i++) if(Math.abs(R[i][c])>Math.abs(R[p][c])) p=i;
+      if(Math.abs(R[p][c])<tol) continue;
+      [R[r],R[p]]=[R[p],R[r]];
+      const d=R[r][c]; for(let j=0;j<n;j++) R[r][j]/=d;
+      for(let i=0;i<m;i++) if(i!==r && Math.abs(R[i][c])>tol){ const f=R[i][c]; for(let j=0;j<n;j++) R[i][j]-=f*R[r][j]; }
+      piv.push(c); r++;
+    }
+    return {R, piv};
+  },
+  rank: M => LA.rref(M).piv.length,
+  nullspace(M){
+    const {R,piv}=LA.rref(M), n=M[0].length, free=[...Array(n).keys()].filter(c=>!piv.includes(c));
+    return free.map(f=>{ const v=Array(n).fill(0); v[f]=1; piv.forEach((p,i)=>{ v[p]=-R[i][f]; }); return v.map(x=>Math.abs(x)<1e-12?0:x); });
+  },
+  det(M){
+    const A=LA.clone(M), n=A.length; let d=1;
+    for(let c=0;c<n;c++){ let p=c; for(let i=c+1;i<n;i++) if(Math.abs(A[i][c])>Math.abs(A[p][c])) p=i;
+      if(Math.abs(A[p][c])<1e-12) return 0; if(p!==c){[A[c],A[p]]=[A[p],A[c]]; d=-d;}
+      d*=A[c][c]; for(let i=c+1;i<n;i++){ const f=A[i][c]/A[c][c]; for(let j=c;j<n;j++) A[i][j]-=f*A[c][j]; } }
+    return d;
+  },
+  inv(M){
+    const n=M.length, A=M.map((r,i)=>r.concat(LA.eye(n)[i])); const {R,piv}=LA.rref(A);
+    if(piv.length<n || piv.some((p,i)=>p!==i)) return null; return R.map(r=>r.slice(n));
+  },
+  solve(A,b){ const n=A.length; const {R,piv}=LA.rref(A.map((r,i)=>r.concat([b[i]]))); if(piv.length<n) return null; return R.map(r=>r[n]); },
+  eig(M){ // QR sin desplazamiento; devuelve valores reales (y marca pares complejos)
+    const n=M.length; let A=LA.clone(M);
+    for(let it=0;it<800;it++){
+      // Gram-Schmidt QR
+      const Q=Array.from({length:n},()=>Array(n).fill(0)), Rm=Array.from({length:n},()=>Array(n).fill(0));
+      for(let j=0;j<n;j++){ let v=A.map(r=>r[j]);
+        for(let k=0;k<j;k++){ const q=Q.map(r=>r[k]); const d=q.reduce((s,a,i)=>s+a*v[i],0); Rm[k][j]=d; v=v.map((a,i)=>a-d*q[i]); }
+        const nv=LA.norm(v)||1e-300; Rm[j][j]=nv; for(let i=0;i<n;i++) Q[i][j]=v[i]/nv; }
+      A=LA.mul(Rm,Q);
+    }
+    const vals=[]; let i=0;
+    while(i<n){
+      if(i<n-1 && Math.abs(A[i+1][i])>1e-6){ // bloque 2x2 -> par complejo
+        const a=A[i][i],b=A[i][i+1],c=A[i+1][i],d=A[i+1][i+1]; const tr=a+d, dt=a*d-b*c, disc=tr*tr/4-dt;
+        if(disc<0){ vals.push({re:tr/2,im:Math.sqrt(-disc)}); vals.push({re:tr/2,im:-Math.sqrt(-disc)}); }
+        else { vals.push({re:tr/2+Math.sqrt(disc),im:0}); vals.push({re:tr/2-Math.sqrt(disc),im:0}); }
+        i+=2;
+      } else { vals.push({re:A[i][i],im:0}); i++; }
+    }
+    vals.sort((p,q)=>Math.hypot(q.re,q.im)-Math.hypot(p.re,p.im));
+    return vals;
+  },
+  eigvec(M,lam){ // iteración inversa
+    const n=M.length; const S=M.map((r,i)=>r.map((a,j)=>a-(i===j?lam+1e-7:0)));
+    let v=Array(n).fill(1/Math.sqrt(n));
+    for(let it=0;it<60;it++){ const w=LA.solve(S,v); if(!w) break; const nw=LA.norm(w); if(!nw) break; v=w.map(a=>a/nw); }
+    return v;
+  }
+};
+const f = (x,d=3) => (Math.abs(x)<5e-4?0:x).toFixed(d).replace(/\.?0+$/,m=>m.includes('.')?'':m).replace(/^-0$/,'0');
+const fv = (v,d=3) => '[ ' + v.map(a=>f(a,d)).join(',  ') + ' ]';
+
+/* =================== Utilidades de interfaz =================== */
+function matrixEditor(container, M, rowLabels, colLabels, onChange){
+  const el=document.getElementById(container); let h='<table class="mat"><tr><th></th>'+colLabels.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
+  M.forEach((r,i)=>{ h+='<tr><th>'+rowLabels[i]+'</th>'+r.map((a,j)=>`<td><input type="number" step="any" data-i="${i}" data-j="${j}" value="${f(a,4)}"></td>`).join('')+'</tr>'; });
+  el.innerHTML=h+'</table>';
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{ M[+inp.dataset.i][+inp.dataset.j]=parseFloat(inp.value)||0; onChange&&onChange(); }));
+}
+function vectorEditor(container, v, labels, onChange){ matrixEditor(container, [v], [''], labels, onChange); const el=document.getElementById(container); el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{ v[+inp.dataset.j]=parseFloat(inp.value)||0; onChange&&onChange(); })); }
+function download(name, text, type){
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; a.click(); }catch(e){}
+  let d=document.getElementById('exp'); if(!d){ d=document.createElement('div'); d.id='exp'; d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9'; d.innerHTML='<div style="background:#fff;border-radius:10px;padding:16px;width:min(720px,92vw)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b id="exp-t"></b><span><button class="btn" id="exp-c">Copiar</button> <button class="btn" id="exp-x">Cerrar</button></span></div><textarea id="exp-a" style="width:100%;height:300px;font-family:var(--mono);font-size:.8rem" readonly></textarea><p style="font-size:.8rem;color:var(--muted);margin:6px 0 0">Si la descarga automática no se inicia, copie el contenido y guárdelo con el nombre indicado.</p></div>'; document.body.appendChild(d);
+    document.getElementById('exp-x').onclick=()=>d.style.display='none'; document.getElementById('exp-c').onclick=()=>{ const a=document.getElementById('exp-a'); a.select(); try{ navigator.clipboard.writeText(a.value); }catch(e){ document.execCommand('copy'); } }; }
+  d.style.display='flex'; document.getElementById('exp-t').textContent=name; document.getElementById('exp-a').value=text;
+}
+function propRow(k,v,note){ return `<div class="k">${k}</div><div class="v">${v}${note?'<small>'+note+'</small>':''}</div>`; }
+function eigText(vals){ return vals.map(e=>e.im?`${f(e.re)} ± ${f(Math.abs(e.im))}i`:f(e.re)).join(',  '); }
+
+/* =================== MÓDULO 1: RED =================== */
+const RED = {
+  base(){ return { A:[[-1,0,0,0,0,0],[1,-1,-1,0,0,0],[0,1,0,-1,0,-1],[0,0,1,0,-1,1],[0,0,0,1,1,0]], d:[-57,10,15,12,20], cap:60 }; },
+  state:null, alpha:[],
+  load(s){ RED.state=s; RED.alpha=[]; document.getElementById('red-cap').value=s.cap; document.getElementById('red-n').value=s.A.length; document.getElementById('red-m').value=s.A[0].length; RED.render(); RED.calc(); },
+  labels(){ const n=RED.state.A.length, m=RED.state.A[0].length; return {N:Array.from({length:n},(_,i)=>'N'+(i+1)), T:Array.from({length:m},(_,j)=>'t'+(j+1))}; },
+  render(){ const {N,T}=RED.labels(); matrixEditor('red-A',RED.state.A,N,T,()=>{RED.alpha=[];}); vectorEditor('red-d',RED.state.d,N); },
+  compute(){
+    const A=RED.state.A, d=RED.state.d, cap=parseFloat(document.getElementById('red-cap').value)||0;
+    const n=A.length, m=A[0].length, rank=LA.rank(A), ker=LA.nullspace(A);
+    // solución de norma mínima con nodo de referencia = fila 1 (fuente)
+    const Ar=A.slice(1), dr=d.slice(1); let q0=null, consistente=true;
+    const G=LA.mul(Ar,LA.T(Ar)); const y=LA.solve(G,dr);
+    if(y){ q0=LA.mulv(LA.T(Ar),y); } else { consistente=false; q0=Array(m).fill(0); }
+    const sumd=d.reduce((s,a)=>s+a,0); if(Math.abs(sumd)>1e-6) consistente=false;
+    const q=q0.map((a,j)=>a+ker.reduce((s,k,i)=>s+(RED.alpha[i]||0)*k[j],0));
+    const Aq=LA.mulv(A,q);
+    const demanda=d.filter(a=>a>0).reduce((s,a)=>s+a,0), fuente=-d.filter(a=>a<0).reduce((s,a)=>s+a,0);
+    return {A,d,n,m,rank,ker,q0,q,Aq,consistente,sumd,demanda,fuente,cap,cobertura:demanda?cap/demanda:Infinity};
+  },
+  calc(){
+    const r=RED.compute(); const {N,T}=RED.labels();
+    // sliders de núcleo
+    const sl=document.getElementById('red-sliders');
+    sl.innerHTML = r.ker.length? '<h3>Coeficientes del núcleo (circulaciones)</h3>'+r.ker.map((k,i)=>`<div class="slider"><label>α${i+1} · k${i+1} = ${fv(k,2)}</label><input type="range" min="-20" max="20" step="0.5" value="${RED.alpha[i]||0}" data-i="${i}"><span>${f(RED.alpha[i]||0,1)}</span></div>`).join('') : '<p style="color:var(--muted);font-size:.85rem">Núcleo trivial: la solución de caudales es única (red en árbol, sin ciclos).</p>';
+    sl.querySelectorAll('input[type=range]').forEach(inp=>inp.addEventListener('input',()=>{ RED.alpha[+inp.dataset.i]=parseFloat(inp.value); RED.calc(); }));
+    document.getElementById('red-q').textContent = T.map((t,j)=>t+' = '+f(r.q[j],2)).join('   ');
+    document.getElementById('red-Aq').textContent = N.map((nn,i)=>nn+': '+f(r.Aq[i],2)+' (d='+f(r.d[i],2)+')').join('   ');
+    // indicador
+    const ind=document.getElementById('red-ind');
+    if(!r.consistente){ ind.className='ind bad'; ind.innerHTML='<b>Sistema inconsistente</b> La suma de d es '+f(r.sumd,2)+' L/s ≠ 0 (o A no corresponde a una red conexa): el vector d no pertenece a la imagen de A y no existe ningún q que satisfaga el balance. Ajuste la fuente para que compense exactamente las demandas.'; }
+    else { const c=r.cobertura; const cls=c>=1.1?'good':c>=1?'warn':'bad';
+      ind.className='ind '+cls; ind.innerHTML=`<b>Índice de cobertura = capacidad / demanda = ${f(r.cap,1)} / ${f(r.demanda,1)} = ${f(c,2)}</b>`+(cls==='good'?'Sostenible: la fuente cubre la demanda con margen ≥ 10 %.':cls==='warn'?'En el límite: la fuente cubre la demanda sin margen para crecimiento o pérdidas.':'No sostenible: la demanda supera la capacidad de la fuente; déficit de '+f(r.demanda-r.cap,1)+' L/s. Requiere gestión de demanda o nueva fuente (ODS 6.4).'); }
+    // propiedades
+    const kerDim=r.m-r.rank;
+    document.getElementById('red-prop').innerHTML =
+      propRow('dim', `A: ${r.n} × ${r.m}  →  T: ℝ<sup>${r.m}</sup> → ℝ<sup>${r.n}</sup>`, 'Entrada: caudales por tubería. Salida: balance neto por nodo.')+
+      propRow('rango(A)', r.rank, r.rank===r.n-1?'= nodos − 1: la red es conexa; la imagen son todos los vectores d cuya suma es 0 (conservación global de masa).':'≠ nodos − 1: la red tiene componentes desconectadas o filas redundantes.')+
+      propRow('dim núcleo', kerDim, kerDim>0?`= tuberías − rango = número de ciclos independientes. Cada vector del núcleo es una circulación que no altera ningún balance; por eso faltan ${kerDim} ecuaciones (de energía) para fijar los caudales.`:'La red es un árbol: los caudales quedan determinados sólo por el balance de masa.')+
+      propRow('base núcleo', r.ker.length?r.ker.map((k,i)=>'k'+(i+1)+' = '+fv(k,2)).join('<br>'):'{0}')+
+      propRow('inyectiva', kerDim===0?'Sí':'No', kerDim===0?'Dos configuraciones distintas de caudales producen balances distintos.':'Infinitos vectores q dan el mismo balance d.')+
+      propRow('sobreyectiva', r.rank===r.n?'Sí':'No', 'La suma de las filas de A es 0, así que ningún d con suma ≠ 0 es alcanzable: la fuente debe aportar exactamente lo que se consume.')+
+      propRow('‖q₀‖', f(LA.norm(r.q0),2)+' L/s', 'Norma mínima: la distribución de caudales que minimiza Σq² sujeta al balance (análoga a mínima disipación).');
+    RED.draw(r); RED.draw3D(r);
+  },
+  draw(r){
+    const {N,T}=RED.labels(); const n=r.n, W=560, H=330;
+    let pos; if(n===5) pos=[[80,165],[220,165],[360,70],[360,260],[490,165]]; else pos=N.map((_,i)=>[280+200*Math.cos(2*Math.PI*i/n-Math.PI/2),165+120*Math.sin(2*Math.PI*i/n-Math.PI/2)]);
+    const qmax=Math.max(1,...r.q.map(Math.abs));
+    let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>`;
+    r.A[0].forEach((_,j)=>{ const col=r.A.map(row=>row[j]); const from=col.indexOf(-1), to=col.indexOf(1); if(from<0||to<0) return;
+      let [x1,y1]=pos[from],[x2,y2]=pos[to]; const q=r.q[j]; const rev=q<0; if(rev){[x1,y1,x2,y2]=[x2,y2,x1,y1];}
+      const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L; const sx=x1+ux*20,sy=y1+uy*20,ex=x2-ux*22,ey=y2-uy*22;
+      const w=1.5+6*Math.abs(q)/qmax; const color=rev?'var(--s2)':'var(--s1)';
+      s+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="${w}" stroke-linecap="round" marker-end="url(#arr)"><title>${T[j]}: ${f(q,2)} L/s</title></line>`;
+      const mx=(sx+ex)/2+(-uy)*12, my=(sy+ey)/2+ux*12; s+=`<text x="${mx}" y="${my}" font-size="11" text-anchor="middle" fill="#52514e">${T[j]}: ${f(Math.abs(q),1)}</text>`; });
+    N.forEach((nn,i)=>{ const [x,y]=pos[i]; const src=r.d[i]<0; s+=`<circle cx="${x}" cy="${y}" r="18" fill="${src?'var(--s3)':'#fff'}" stroke="${src?'var(--s3)':'#0b0b0b'}" stroke-width="1.5"/><text x="${x}" y="${y+4}" font-size="11" text-anchor="middle" font-weight="600" fill="${src?'#fff':'#0b0b0b'}">${nn}</text><text x="${x}" y="${y<120?y-26:y+34}" font-size="10.5" text-anchor="middle" fill="#52514e">${src?'fuente ':'d = '}${f(Math.abs(r.d[i]),1)} L/s</text>`; });
+    document.getElementById('red-svg').innerHTML=s+'</svg>';
+  }
+};
+RED.scen = {
+  base: ()=>RED.base(),
+  demanda: ()=>{ const s=RED.base(); s.d=[-57*1.3, 13, 19.5, 15.6, 26]; return s; },
+  sequia: ()=>{ const s=RED.base(); s.cap=45; return s; },
+  fuga: ()=>{ const s=RED.base(); s.d=[-65,10,15,20,20]; return s; }
+};
+
+/* =================== MÓDULO 2: EMBALSE =================== */
+const EMB = {
+  S:['Alto','Medio','Bajo','Crítico'],
+  base(){ return { A:[[0.70,0.20,0.05,0.00],[0.25,0.55,0.25,0.10],[0.05,0.20,0.50,0.40],[0.00,0.05,0.20,0.50]], x:[1,0,0,0] }; },
+  state:null,
+  load(s){ EMB.state=s; EMB.render(); EMB.calc(); },
+  render(){ matrixEditor('emb-A',EMB.state.A,EMB.S.map(s=>'→ '+s),EMB.S.map(s=>'desde '+s)); vectorEditor('emb-x',EMB.state.x,EMB.S); },
+  compute(){
+    const A=EMB.state.A, x0=EMB.state.x.slice(), K=+document.getElementById('emb-k').value, th=parseFloat(document.getElementById('emb-th').value);
+    const colsum=A[0].map((_,j)=>A.reduce((s,r)=>s+r[j],0)); const estoc=colsum.every(c=>Math.abs(c-1)<1e-6)&&A.every(r=>r.every(a=>a>=-1e-12));
+    const hist=[x0]; let x=x0; for(let k=0;k<K;k++){ x=LA.mulv(A,x); hist.push(x); }
+    const eig=LA.eig(A); let pi=LA.eigvec(A,1); const sp=pi.reduce((s,a)=>s+a,0); pi=pi.map(a=>a/sp);
+    const lam2=eig.length>1?Math.hypot(eig[1].re,eig[1].im):0; const mem=lam2>0&&lam2<1?Math.log(0.01)/Math.log(lam2):Infinity;
+    const riesgo=pi[2]+pi[3];
+    return {A,x0,K,th,colsum,estoc,hist,eig,pi,lam2,mem,riesgo,det:LA.det(A),rank:LA.rank(A)};
+  },
+  calc(){
+    const r=EMB.compute(); document.getElementById('emb-kv').textContent=r.K;
+    document.getElementById('emb-xk').textContent='k = '+r.K+':  '+EMB.S.map((s,i)=>s+' '+f(r.hist[r.K][i],3)).join('   ');
+    document.getElementById('emb-pi').textContent=EMB.S.map((s,i)=>s+' '+f(r.pi[i],3)).join('   ');
+    const ind=document.getElementById('emb-ind');
+    if(!r.estoc){ ind.className='ind bad'; ind.innerHTML='<b>A no es estocástica</b> Las columnas deben sumar 1 y no tener entradas negativas (sumas actuales: '+fv(r.colsum,3)+'). Sin esa condición no existe el autovalor λ = 1 que define el estado de largo plazo.'; }
+    else { const cls=r.riesgo<=r.th?'good':r.riesgo<=r.th+0.15?'warn':'bad';
+      ind.className='ind '+cls; ind.innerHTML=`<b>Probabilidad de largo plazo de Bajo + Crítico = ${f(r.pi[2],3)} + ${f(r.pi[3],3)} = ${f(r.riesgo,3)} (umbral ${f(r.th,2)})</b>`+(cls==='good'?'Sostenible: en régimen estacionario el embalse pasa la mayor parte del tiempo en niveles Alto/Medio.':cls==='warn'?'Riesgo moderado: el embalse supera el umbral; conviene revisar reglas de operación.':'No sostenible: el régimen de largo plazo concentra la probabilidad en niveles Bajo/Crítico (riesgo de desabastecimiento, ODS 6.4).')+` Memoria del sistema ≈ ${isFinite(r.mem)?Math.ceil(r.mem)+' meses':'∞'} para olvidar el estado inicial (|λ₂| = ${f(r.lam2,3)}).`; }
+    document.getElementById('emb-prop').innerHTML =
+      propRow('dim','A: 4 × 4  →  T: ℝ⁴ → ℝ⁴','Entrada y salida: distribuciones de probabilidad sobre los 4 estados.')+
+      propRow('autovalores', eigText(r.eig), 'λ₁ = 1 siempre existe en una matriz estocástica (Perron‑Frobenius). Los demás cumplen |λ| < 1 y gobiernan la velocidad de convergencia.')+
+      propRow('autovector λ=1', fv(r.pi,3), 'Vector estacionario π: A·π = π. Es el estado "sostenible" del embalse a largo plazo e independiente de x₀.')+
+      propRow('|λ₂|', f(r.lam2,3), 'Tasa de olvido: el error respecto a π decae como |λ₂|ᵏ.')+
+      propRow('det(A)', f(r.det,4), r.det!==0?'A es invertible: en principio puede reconstruirse la distribución del mes anterior.':'A es singular: distintas distribuciones iniciales colapsan en una sola.')+
+      propRow('rango(A)', r.rank)+
+      propRow('conservación', 'Σ columnas = '+fv(r.colsum,2), 'T preserva la suma de probabilidades (= 1): la imagen de un vector de probabilidad es otro vector de probabilidad.');
+    EMB.draw(r); EMB.draw3D(r);
+  },
+  draw(r){
+    const W=600,H=260,L=46,B=34,Rg=14,Tp=14, pw=W-L-Rg, ph=H-B-Tp, K=r.K, cols=['var(--s1)','var(--s3)','var(--s4)','var(--s8)'];
+    const bw=Math.min(28,pw/(K+1)*0.75), step=pw/(K+1);
+    let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block">`;
+    [0,0.25,0.5,0.75,1].forEach(t=>{ const y=Tp+ph*(1-t); s+=`<line x1="${L}" y1="${y}" x2="${W-Rg}" y2="${y}" stroke="#e4e3de"/><text x="${L-6}" y="${y+4}" font-size="10" text-anchor="end" fill="#8a8984">${t}</text>`; });
+    r.hist.forEach((x,k)=>{ let acc=0; const cx=L+step*k+step/2-bw/2; x.forEach((p,i)=>{ const h=ph*p; const y=Tp+ph*(1-acc-p); s+=`<rect x="${cx}" y="${y}" width="${bw}" height="${Math.max(0,h-1)}" fill="${cols[i]}" rx="1"><title>Mes ${k} · ${EMB.S[i]}: ${f(p,3)}</title></rect>`; acc+=p; });
+      if(K<=18||k%3===0) s+=`<text x="${cx+bw/2}" y="${H-B+14}" font-size="10" text-anchor="middle" fill="#52514e">${k}</text>`; });
+    s+=`<text x="${L+pw/2}" y="${H-4}" font-size="11" text-anchor="middle" fill="#52514e">Mes k (0 = estado inicial) · altura = probabilidad de cada estado</text>`;
+    // línea de referencia pi para Bajo+Crítico
+    const y=Tp+ph*r.riesgo; s+=`<line x1="${L}" y1="${y}" x2="${W-Rg}" y2="${y}" stroke="#0b0b0b" stroke-dasharray="4 3"/><text x="${W-Rg}" y="${y-4}" font-size="10" text-anchor="end" fill="#0b0b0b">régimen estacionario: Bajo+Crítico por encima de esta línea = ${f(r.riesgo,3)}</text>`;
+    document.getElementById('emb-svg').innerHTML=s+'</svg>';
+  }
+};
+EMB.scen = {
+  base: ()=>EMB.base(),
+  sequia: ()=>({ A:[[0.55,0.10,0.02,0.00],[0.35,0.50,0.18,0.05],[0.10,0.30,0.50,0.35],[0.00,0.10,0.30,0.60]], x:[1,0,0,0] }),
+  gestion: ()=>({ A:[[0.75,0.30,0.10,0.00],[0.22,0.55,0.35,0.20],[0.03,0.13,0.45,0.45],[0.00,0.02,0.10,0.35]], x:[0,0,0,1] })
+};
+
+/* =================== MÓDULO 3: PLANTA =================== */
+const PLA = {
+  U:['Homogeneización','Reactor','Sedimentador'],
+  base(){ return { A:[[0.50,0.10,0.00],[0.40,0.50,0.10],[0.00,0.30,0.60]], x:[120,0,0] }; },
+  state:null,
+  load(s){ PLA.state=s; PLA.render(); PLA.calc(); },
+  render(){ matrixEditor('pla-A',PLA.state.A,PLA.U.map(u=>'→ '+u),PLA.U.map(u=>'desde '+u.slice(0,5)+'.')); vectorEditor('pla-x',PLA.state.x,PLA.U); },
+  compute(){
+    const A=PLA.state.A, x0=PLA.state.x.slice(), K=+document.getElementById('pla-k').value, lim=parseFloat(document.getElementById('pla-lim').value);
+    const colsum=A[0].map((_,j)=>A.reduce((s,r)=>s+r[j],0)); const rem=colsum.map(c=>1-c);
+    const hist=[x0]; let x=x0; for(let k=0;k<K;k++){ x=LA.mulv(A,x); hist.push(x); }
+    const eig=LA.eig(A); const rho=Math.hypot(eig[0].re,eig[0].im); const inv=LA.inv(A);
+    const sal=hist.map(h=>h[2]); const maxSal=Math.max(...sal.slice(1)); const kmax=sal.indexOf(maxSal);
+    let kcumple=null; for(let k=kmax;k<=K;k++){ if(sal[k]<=lim){kcumple=k;break;} }
+    return {A,x0,K,lim,colsum,rem,hist,eig,rho,inv,sal,maxSal,kmax,kcumple,det:LA.det(A),rank:LA.rank(A),masaOk:colsum.every(c=>c<=1+1e-9&&c>=0)};
+  },
+  calc(){
+    const r=PLA.compute(); document.getElementById('pla-kv').textContent=r.K;
+    document.getElementById('pla-tbl').innerHTML='<tr><th>Ciclo</th>'+PLA.U.map(u=>'<th>'+u+'</th>').join('')+'<th>Total</th></tr>'+r.hist.map((h,k)=>`<tr><td>${k}</td>${h.map(a=>'<td>'+f(a,2)+'</td>').join('')}<td>${f(h.reduce((s,a)=>s+a,0),2)}</td></tr>`).join('');
+    const ind=document.getElementById('pla-ind');
+    if(!r.masaOk){ ind.className='ind bad'; ind.innerHTML='<b>Matriz físicamente inválida</b> Alguna columna suma más de 1 (la unidad generaría contaminante) o tiene entradas negativas. Sumas: '+fv(r.colsum,3); }
+    else if(r.rho>=1){ ind.className='ind bad'; ind.innerHTML=`<b>Sin atenuación: |λ<sub>máx</sub>| = ${f(r.rho,3)} ≥ 1</b> La carga no decae; la planta acumula o conserva el contaminante. No sostenible.`; }
+    else { const cls=r.maxSal<=r.lim?'good':r.kcumple!==null?'warn':'bad';
+      ind.className='ind '+cls; ind.innerHTML=`<b>Pico de salida = ${f(r.maxSal,2)} mg/L en el ciclo ${r.kmax} (límite ${f(r.lim,1)} mg/L) · |λ<sub>máx</sub>| = ${f(r.rho,3)}</b>`+(cls==='good'?'Sostenible: la salida nunca supera el límite normativo; la carga residual decae como '+f(r.rho,3)+'ᵏ.':cls==='warn'?`Incumplimiento transitorio: la salida supera el límite y vuelve a cumplir en el ciclo ${r.kcumple}. Requiere amortiguar el pulso (mayor remoción o tanque de igualación).`:'No sostenible en el horizonte simulado: la salida supera el límite y no vuelve a cumplirlo en '+r.K+' ciclos.'); }
+    document.getElementById('pla-prop').innerHTML =
+      propRow('dim','A: 3 × 3  →  T: ℝ³ → ℝ³','Entrada y salida: cargas (mg/L) en las tres unidades.')+
+      propRow('remoción por unidad', PLA.U.map((u,i)=>u+' '+f(100*r.rem[i],1)+' %').join(' · '), '1 − suma de la columna: fracción de la carga que desaparece en cada ciclo (sedimentación, biodegradación).')+
+      propRow('autovalores', eigText(r.eig), 'Si todos cumplen |λ| < 1, Aᵏ → 0 y la planta atenúa cualquier pulso. El dominante fija la velocidad de decaimiento.')+
+      propRow('ciclos para reducir 90 %', r.rho<1&&r.rho>0?Math.ceil(Math.log(0.1)/Math.log(r.rho)):'∞', 'Estimación con el autovalor dominante: |λ|ᵏ ≤ 0.1.')+
+      propRow('det(A)', f(r.det,4), r.det!==0?'≠ 0: A es invertible.':'= 0: A no es invertible; se pierde información de la entrada.')+
+      propRow('A⁻¹ (trazabilidad)', r.inv?'<span style="font-family:var(--mono)">'+r.inv.map(row=>fv(row,3)).join('<br>')+'</span>':'no existe', r.inv?'Permite reconstruir la carga del ciclo anterior a partir de la medida actual: x₀ = A⁻¹·x₁.':'')+
+      propRow('rango(A)', r.rank)+
+      propRow('composición', 'Aᵏ = A∘A∘…∘A', 'k ciclos de tratamiento son la composición de k transformaciones; la matriz de k ciclos es la potencia Aᵏ.');
+    PLA.draw(r); PLA.draw3D(r);
+  },
+  draw(r){
+    const W=600,H=250,L=46,B=34,Rg=14,Tp=14,pw=W-L-Rg,ph=H-B-Tp, cols=['var(--s1)','var(--s3)','var(--s7)'];
+    const ymax=Math.max(r.lim*1.2,...r.hist.flat())*1.05; const X=k=>L+pw*k/r.K, Y=v=>Tp+ph*(1-v/ymax);
+    let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block">`;
+    const ticks=5; for(let i=0;i<=ticks;i++){ const v=ymax*i/ticks; s+=`<line x1="${L}" y1="${Y(v)}" x2="${W-Rg}" y2="${Y(v)}" stroke="#e4e3de"/><text x="${L-6}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#8a8984">${f(v,0)}</text>`; }
+    s+=`<line x1="${L}" y1="${Y(r.lim)}" x2="${W-Rg}" y2="${Y(r.lim)}" stroke="var(--s8)" stroke-dasharray="5 3" stroke-width="1.5"/><text x="${W-Rg}" y="${Y(r.lim)-4}" font-size="10" text-anchor="end" fill="var(--s8)">límite ${f(r.lim,0)} mg/L</text>`;
+    for(let i=0;i<3;i++){ const d=r.hist.map((h,k)=>`${k?'L':'M'}${X(k)},${Y(h[i])}`).join(' '); s+=`<path d="${d}" fill="none" stroke="${cols[i]}" stroke-width="2"/>`; r.hist.forEach((h,k)=>{ s+=`<circle cx="${X(k)}" cy="${Y(h[i])}" r="3.5" fill="${cols[i]}" stroke="#fff" stroke-width="1"><title>Ciclo ${k} · ${PLA.U[i]}: ${f(h[i],2)} mg/L</title></circle>`; }); }
+    for(let k=0;k<=r.K;k++) if(r.K<=20||k%5===0) s+=`<text x="${X(k)}" y="${H-B+14}" font-size="10" text-anchor="middle" fill="#52514e">${k}</text>`;
+    s+=`<text x="${L+pw/2}" y="${H-4}" font-size="11" text-anchor="middle" fill="#52514e">Ciclo de tratamiento k · carga (mg/L) en cada unidad</text>`;
+    document.getElementById('pla-svg').innerHTML=s+'</svg>';
+  }
+};
+PLA.scen = {
+  base: ()=>PLA.base(),
+  sobrecarga: ()=>({ A:[[0.70,0.10,0.00],[0.25,0.70,0.10],[0.00,0.20,0.85]], x:[120,0,0] }),
+  mejora: ()=>({ A:[[0.40,0.05,0.00],[0.35,0.40,0.05],[0.00,0.25,0.45]], x:[120,0,0] })
+};
+
+/* =================== Motor 3D (Three.js) =================== */
+const V3={views:{},active:'red',paused:false};
+function make3D(id){
+  const el=document.getElementById(id); const H=400; let W=el.clientWidth||720;
+  const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); renderer.setSize(W,H); el.appendChild(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0xeaf2f8);
+  const camera=new THREE.PerspectiveCamera(42,W/H,0.1,400);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x8a97a3,0.95)); const dl=new THREE.DirectionalLight(0xffffff,0.65); dl.position.set(8,16,12); scene.add(dl);
+  const grid=new THREE.GridHelper(40,40,0xb4c2cc,0xd3dde4); grid.position.y=-0.02; scene.add(grid);
+  const group=new THREE.Group(); scene.add(group);
+  const v={el,renderer,scene,camera,group,time:0,onTick:null,home:{theta:0.55,phi:1.05,r:26,t:[0,1.5,0]},orb:{theta:0.55,phi:1.05,r:26,target:new THREE.Vector3(0,1.5,0)}};
+  v.upd=()=>{ const o=v.orb; camera.position.set(o.target.x+o.r*Math.sin(o.phi)*Math.sin(o.theta), o.target.y+o.r*Math.cos(o.phi), o.target.z+o.r*Math.sin(o.phi)*Math.cos(o.theta)); camera.lookAt(o.target); };
+  v.setHome=(theta,phi,r,t)=>{ v.home={theta,phi,r,t}; v.goHome(); };
+  v.goHome=()=>{ const h=v.home; v.orb.theta=h.theta; v.orb.phi=h.phi; v.orb.r=h.r; v.orb.target.set(h.t[0],h.t[1],h.t[2]); v.upd(); };
+  v.resize=()=>{ const w=el.clientWidth; if(!w) return; renderer.setSize(w,H); camera.aspect=w/H; camera.updateProjectionMatrix(); };
+  v.clear=()=>{ while(group.children.length){ const o=group.children[0]; group.remove(o); o.traverse(c=>{ if(c.geometry) c.geometry.dispose(); if(c.material){ if(c.material.map) c.material.map.dispose(); c.material.dispose(); } }); } v.onTick=null; };
+  let drag=null; const dom=renderer.domElement;
+  dom.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY}; try{dom.setPointerCapture(e.pointerId);}catch(_){} });
+  dom.addEventListener('pointermove',e=>{ if(!drag) return; v.orb.theta-=(e.clientX-drag.x)*0.008; v.orb.phi=Math.min(1.5,Math.max(0.15,v.orb.phi-(e.clientY-drag.y)*0.006)); drag={x:e.clientX,y:e.clientY}; v.upd(); });
+  const end=()=>{drag=null;}; dom.addEventListener('pointerup',end); dom.addEventListener('pointercancel',end);
+  dom.addEventListener('wheel',e=>{ e.preventDefault(); v.orb.r=Math.min(70,Math.max(6,v.orb.r*(e.deltaY>0?1.1:0.9))); v.upd(); },{passive:false});
+  v.upd(); return v;
+}
+function get3D(key){
+  if(V3.views[key]!==undefined) return V3.views[key];
+  try{ if(typeof THREE==='undefined') throw new Error('THREE'); V3.views[key]=make3D(key+'-3d'); }
+  catch(e){ V3.views[key]=null; document.getElementById(key+'-3d').innerHTML='<p style="padding:18px;color:#52514e;font-size:.9rem">No fue posible iniciar la vista 3D (WebGL no disponible o falta el archivo three.min.js junto a index.html). El resto del simulador funciona normalmente.</p>'; }
+  return V3.views[key];
+}
+function mat3(color,opacity){ return new THREE.MeshStandardMaterial({color,roughness:0.55,metalness:0.05,transparent:opacity<1,opacity:opacity,depthWrite:opacity>=1}); }
+function tube3(a,b,rad,color,opacity=1){ const d=new THREE.Vector3().subVectors(b,a); const m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,d.length(),18),mat3(color,opacity)); m.position.copy(a).addScaledVector(d,0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize()); return m; }
+function box3(w,h,d,color,opacity=1){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat3(color,opacity)); }
+function label3(text,size=0.62,color='#0b0b0b'){
+  const c=document.createElement('canvas'), ctx=c.getContext('2d'), fs=46, font='600 '+fs+'px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+  ctx.font=font; const w=Math.ceil(ctx.measureText(text).width)+28; c.width=w; c.height=fs+22; ctx.font=font;
+  ctx.fillStyle='rgba(255,255,255,0.86)'; ctx.fillRect(0,0,c.width,c.height); ctx.fillStyle=color; ctx.textBaseline='middle'; ctx.fillText(text,14,c.height/2+2);
+  const tex=new THREE.CanvasTexture(c); const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true})); sp.scale.set(size*c.width/c.height,size,1); sp.renderOrder=20; return sp;
+}
+function setLabel3(holder,text,size,color){ while(holder.children.length){ const o=holder.children[0]; holder.remove(o); o.material.map.dispose(); o.material.dispose(); } holder.add(label3(text,size,color)); }
+function particles3(g,list,s,e,rad,color,speed,n=4){ for(let k=0;k<n;k++){ const m=new THREE.Mesh(new THREE.SphereGeometry(rad,12,10),mat3(color,1)); g.add(m); list.push({m,s,e,ph:k/n,sp:speed}); } }
+function moveParticles(list,dt){ list.forEach(p=>{ p.ph=(p.ph+p.sp*dt)%1; p.m.position.lerpVectors(p.s,p.e,p.ph); }); }
+
+RED.draw3D=function(r){
+  const v=get3D('red'); if(!v) return; v.clear(); const g=v.group, {N,T}=RED.labels(), n=r.n;
+  const P=n===5?[[-8,3.6,0],[-3,1.7,0],[2,1.3,-4],[2,0.9,4],[7,0.5,0]]:N.map((_,i)=>[7*Math.cos(2*Math.PI*i/n),1.2,7*Math.sin(2*Math.PI*i/n)]);
+  const pos=P.map(p=>new THREE.Vector3(p[0],p[1],p[2])), qmax=Math.max(1,...r.q.map(Math.abs)), dmax=Math.max(1,...r.d.map(Math.abs)), parts=[];
+  r.A[0].forEach((_,j)=>{ const col=r.A.map(row=>row[j]), from=col.indexOf(-1), to=col.indexOf(1); if(from<0||to<0) return;
+    const q=r.q[j], rev=q<0, a=pos[from], b=pos[to], rad=0.07+0.2*Math.abs(q)/qmax;
+    g.add(tube3(a,b,rad,rev?0xeb6834:0x2a78d6,0.5));
+    if(Math.abs(q)>1e-6) particles3(g,parts,rev?b:a,rev?a:b,rad+0.07,rev?0x9a3412:0x0b3d91,0.12+0.55*Math.abs(q)/qmax,4);
+    const lb=label3(T[j]+': '+f(Math.abs(q),1)+' L/s',0.5,'#52514e'); lb.position.copy(a).lerp(b,0.5).add(new THREE.Vector3(0,0.75,0)); g.add(lb); });
+  N.forEach((nn,i)=>{ const p=pos[i], src=r.d[i]<0; let top=p.y+0.6;
+    if(src){ const tk=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,2.2,28),mat3(0x1baf7a,0.9)); tk.position.copy(p); g.add(tk); const leg=tube3(new THREE.Vector3(p.x,0,p.z),new THREE.Vector3(p.x,p.y-1.1,p.z),0.18,0x8a8984); g.add(leg); top=p.y+1.3; }
+    else { const sp=new THREE.Mesh(new THREE.SphereGeometry(0.45,24,18),mat3(0xffffff,1)); sp.position.copy(p); g.add(sp); g.add(tube3(new THREE.Vector3(p.x,0,p.z),p,0.05,0xb4c2cc));
+      if(r.d[i]>0){ const h=3*r.d[i]/dmax; const c=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,h,20),mat3(0x6250d6,0.55)); c.position.set(p.x,p.y+0.45+h/2,p.z); g.add(c); top=p.y+0.45+h; } }
+    const lb=label3(src?nn+' · fuente '+f(-r.d[i],1)+' L/s':nn+' · d = '+f(r.d[i],1)+' L/s',0.6); lb.position.set(p.x,top+0.6,p.z); g.add(lb); });
+  v.onTick=dt=>moveParticles(parts,dt); moveParticles(parts,0);
+  if(!v.inited){ v.inited=true; v.setHome(0.45,1.02,17,[0,1.8,0]); }
+};
+EMB.draw3D=function(r){
+  const v=get3D('emb'); if(!v) return; v.clear(); const g=v.group, K=r.K, Hh=4, lev=[0.875,0.625,0.375,0.125], cols=[0x2a78d6,0x1baf7a,0xeda100,0xe34948], cx=-9;
+  const fl=box3(6.4,0.2,6.4,0x8a8984); fl.position.set(cx,-0.1,0); g.add(fl);
+  [[cx,Hh/2+0.2,-3.1,6.4,Hh+0.4,0.2],[cx-3.1,Hh/2+0.2,0,0.2,Hh+0.4,6.4],[cx+3.1,Hh/2+0.2,0,0.2,Hh+0.4,6.4]].forEach(w=>{ const m=box3(w[3],w[4],w[5],0x9aa5ad,0.3); m.position.set(w[0],w[1],w[2]); g.add(m); });
+  const dam=box3(6.4,Hh+0.4,0.5,0x6f6e69,0.45); dam.position.set(cx,Hh/2+0.2,3.25); g.add(dam);
+  EMB.S.forEach((s,i)=>{ const band=box3(0.12,Hh/4-0.06,6.2,cols[i],0.9); band.position.set(cx-3.3,(3-i)*Hh/4+Hh/8,0); g.add(band); const lb=label3(s,0.5); lb.position.set(cx-4.6,(3-i)*Hh/4+Hh/8,0); g.add(lb); });
+  const water=box3(6,1,6,0x2a78d6,0.72); g.add(water);
+  const info=new THREE.Group(); info.position.set(cx,Hh+1.5,0); g.add(info);
+  const x0=-3.2, step=Math.min(0.8,14/(K+1));
+  r.hist.forEach((x,k)=>x.forEach((p,i)=>{ const h=p*Hh; if(h<0.01) return; const b=box3(step*0.72,h,0.72,cols[i]); b.position.set(x0+k*step,h/2,(i-1.5)*1.05); g.add(b); }));
+  EMB.S.forEach((s,i)=>{ const lb=label3(s,0.5); lb.position.set(x0-1.5,0.3,(i-1.5)*1.05); g.add(lb); });
+  const every=Math.max(1,Math.ceil(K/6)); for(let k=0;k<=K;k+=every){ const lb=label3('mes '+k,0.42,'#52514e'); lb.position.set(x0+k*step,-0.1,2.9); g.add(lb); }
+  const cursor=box3(step*0.9,Hh+0.2,4.5,0x0b0b0b,0.12); cursor.position.set(x0,Hh/2,0); g.add(cursor);
+  const E=r.hist.map(x=>x.reduce((s,p,i)=>s+p*lev[i],0)); let cur=-1;
+  const tick=(dt,t)=>{ const u=(t*1.3)%(K+2.5), m=Math.min(K,Math.floor(u)), fr=Math.min(1,u-m), e=m<K?E[m]+(E[m+1]-E[m])*fr:E[K];
+    water.scale.y=Math.max(0.02,e*Hh); water.position.set(cx,Math.max(0.02,e*Hh)/2,0); cursor.position.x=x0+m*step;
+    if(m!==cur){ cur=m; setLabel3(info,'Mes '+m+' · nivel esperado '+f(100*E[m],0)+' % · P(Bajo+Crítico) = '+f(r.hist[m][2]+r.hist[m][3],2),0.6); } };
+  v.onTick=tick; tick(0,v.time);
+  if(!v.inited){ v.inited=true; v.setHome(0.3,0.98,21,[-2.5,1.6,0]); }
+};
+PLA.draw3D=function(r){
+  const v=get3D('pla'); if(!v) return; v.clear(); const g=v.group, K=r.K, Hh=4, R=1.5, X=[-6,0,6], cols=[0x2a78d6,0x1baf7a,0x6250d6], mx=Math.max(r.lim*1.2,1,...r.hist.reduce((a,h)=>a.concat(h),[])), parts=[], loads=[], vals=[];
+  PLA.U.forEach((u,i)=>{ const glass=new THREE.Mesh(new THREE.CylinderGeometry(R,R,Hh,36,1,true),new THREE.MeshStandardMaterial({color:0x9fb6c6,transparent:true,opacity:0.22,side:THREE.DoubleSide,depthWrite:false})); glass.position.set(X[i],Hh/2,0); g.add(glass);
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(R+0.1,R+0.1,0.15,36),mat3(0x8a8984,1)); base.position.set(X[i],-0.07,0); g.add(base);
+    const ld=new THREE.Mesh(new THREE.CylinderGeometry(R*0.94,R*0.94,1,36),mat3(cols[i],0.85)); g.add(ld); loads.push(ld);
+    const nm=label3(u,0.58); nm.position.set(X[i],Hh+1.5,0); g.add(nm); const hv=new THREE.Group(); hv.position.set(X[i],Hh+0.75,0); g.add(hv); vals.push(hv); });
+  for(let i=0;i<3;i++) for(let j=0;j<3;j++){ const a=r.A[i][j]; if(i===j||a<=0) continue; const fwd=i>j, y=fwd?0.9:3.2; let s,e;
+    if(Math.abs(i-j)===1){ s=new THREE.Vector3(X[j]+(fwd?R:-R),y,0); e=new THREE.Vector3(X[i]+(fwd?-R:R),y,0); } else { s=new THREE.Vector3(X[j],y,R+0.5); e=new THREE.Vector3(X[i],y,R+0.5); }
+    const rad=0.06+0.2*a; g.add(tube3(s,e,rad,fwd?0x52514e:0xeb6834,0.5)); particles3(g,parts,s,e,rad+0.06,fwd?0x0b0b0b:0x9a3412,0.2+0.8*a,3);
+    const lb=label3(f(100*a,0)+' %',0.42,'#52514e'); lb.position.copy(s).lerp(e,0.5).add(new THREE.Vector3(0,0.55,0)); g.add(lb); }
+  const so=new THREE.Vector3(X[2]+R,0.9,0), eo=new THREE.Vector3(X[2]+R+3.2,0.9,0); g.add(tube3(so,eo,0.14,0x6250d6,0.5)); particles3(g,parts,so,eo,0.2,0x3b2f99,0.5,3);
+  const out=label3('Salida',0.5); out.position.set(eo.x+0.3,1.8,0); g.add(out);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(R+0.06,0.07,10,56),mat3(0xe34948,1)); ring.rotation.x=Math.PI/2; ring.position.set(X[2],r.lim/mx*Hh,0); g.add(ring);
+  const rl=label3('límite '+f(r.lim,0)+' mg/L',0.45,'#b3261e'); rl.position.set(X[2]+R+1.9,r.lim/mx*Hh+0.45,0); g.add(rl);
+  const info=new THREE.Group(); info.position.set(0,Hh+2.5,0); g.add(info); let cur=-1;
+  const tick=(dt,t)=>{ moveParticles(parts,dt); const u=(t*1.0)%(K+2.5), m=Math.min(K,Math.floor(u)), fr=Math.min(1,u-m);
+    loads.forEach((ld,i)=>{ const val=m<K?r.hist[m][i]+(r.hist[m+1][i]-r.hist[m][i])*fr:r.hist[K][i], h=Math.max(0.02,val/mx*Hh); ld.scale.y=h; ld.position.set(X[i],h/2,0); if(i===2) ld.material.color.set(val>r.lim?0xe34948:cols[2]); });
+    if(m!==cur){ cur=m; setLabel3(info,'Ciclo '+m+' · carga total '+f(r.hist[m].reduce((s,a)=>s+a,0),1)+' mg/L',0.62); vals.forEach((hv,i)=>setLabel3(hv,f(r.hist[m][i],1)+' mg/L',0.5,'#52514e')); } };
+  v.onTick=tick; tick(0,v.time);
+  if(!v.inited){ v.inited=true; v.setHome(0.28,1.12,18,[1,2.6,0]); }
+};
+(function loop3D(){ let last=performance.now(); function fr(now){ requestAnimationFrame(fr); const dt=Math.min(0.1,(now-last)/1000); last=now; const v=V3.views[V3.active]; if(!v) return; if(!V3.paused&&v.onTick){ v.time+=dt; v.onTick(dt,v.time); } v.renderer.render(v.scene,v.camera); } requestAnimationFrame(fr); })();
+window.addEventListener('resize',()=>{ const v=V3.views[V3.active]; if(v) v.resize(); });
+document.querySelectorAll('[data-pause]').forEach(b=>b.addEventListener('click',()=>{ V3.paused=!V3.paused; document.querySelectorAll('[data-pause]').forEach(x=>x.textContent=V3.paused?'▶ Reanudar':'⏸ Pausar'); }));
+document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',()=>{ const v=V3.views[b.dataset.home]; if(v) v.goHome(); }));
+
+/* =================== Exportación =================== */
+function exportCSV(mod){
+  let rows=[];
+  if(mod==='red'){ const r=RED.compute(); const {N,T}=RED.labels(); rows.push(['tuberia','caudal_L_s']); T.forEach((t,j)=>rows.push([t,f(r.q[j],4)])); rows.push([]); rows.push(['nodo','demanda','A_q']); N.forEach((n,i)=>rows.push([n,f(r.d[i],4),f(r.Aq[i],4)])); rows.push([]); rows.push(['rango',r.rank],['dim_nucleo',r.m-r.rank],['cobertura',f(r.cobertura,4)]); }
+  if(mod==='emb'){ const r=EMB.compute(); rows.push(['mes',...EMB.S]); r.hist.forEach((h,k)=>rows.push([k,...h.map(a=>f(a,5))])); rows.push([]); rows.push(['pi',...r.pi.map(a=>f(a,5))]); rows.push(['autovalores',...r.eig.map(e=>f(e.re,5))]); }
+  if(mod==='pla'){ const r=PLA.compute(); rows.push(['ciclo',...PLA.U]); r.hist.forEach((h,k)=>rows.push([k,...h.map(a=>f(a,4))])); rows.push([]); rows.push(['autovalores',...r.eig.map(e=>f(e.re,5))]); rows.push(['pico_salida',f(r.maxSal,4)],['limite',r.lim]); }
+  download(mod+'_resultados.csv', rows.map(r=>r.join(';')).join('\n'), 'text/csv');
+}
+function exportJSON(mod){ const st={red:RED.state,emb:EMB.state,pla:PLA.state}[mod]; download(mod+'_modelo.json', JSON.stringify(st,null,2), 'application/json'); }
+
+/* =================== Validación interna =================== */
+function validar(){
+  const checks=[]; const near=(a,b,t=1e-3)=>Math.abs(a-b)<t;
+  // Red: caso base
+  RED.state=RED.base(); RED.alpha=[]; document.getElementById('red-cap').value=60; let r=RED.compute();
+  checks.push(['red.rango=4', r.rank===4]); checks.push(['red.dimNucleo=2', r.ker.length===2]);
+  checks.push(['red.A·q=d', r.Aq.every((a,i)=>near(a,r.d[i]))]); checks.push(['red.q0(t1)=57', near(r.q[0],57)]); checks.push(['red.q0(t2)=23.875', near(r.q[1],23.875)]);
+  checks.push(['red.A·k=0', r.ker.every(k=>LA.mulv(r.A,k).every(a=>near(a,0)))]); checks.push(['red.cobertura=1.0526', near(r.cobertura,60/57)]);
+  // Embalse
+  EMB.state=EMB.base(); document.getElementById('emb-k').value=12; document.getElementById('emb-th').value=0.30; let e=EMB.compute();
+  checks.push(['emb.lambda1=1', near(e.eig[0].re,1)]); checks.push(['emb.lambda2=0.7093', near(e.lam2,0.7093)]);
+  checks.push(['emb.pi=[.2629,.3270,.2695,.1405]', [0.2629,0.3270,0.2695,0.1405].every((p,i)=>near(e.pi[i],p))]);
+  checks.push(['emb.x12=[.2709,.3287,.2644,.1360]', [0.2709,0.3287,0.2644,0.1360].every((p,i)=>near(e.hist[12][i],p))]);
+  checks.push(['emb.det=0.0454', near(e.det,0.045375,1e-5)]);
+  // Planta
+  PLA.state=PLA.base(); document.getElementById('pla-k').value=12; document.getElementById('pla-lim').value=30; let p=PLA.compute();
+  checks.push(['pla.eig=[.7925,.5552,.2523]', [0.7925,0.5552,0.2523].every((v,i)=>near(p.eig[i].re,v))]);
+  checks.push(['pla.det=0.111', near(p.det,0.111,1e-6)]); checks.push(['pla.x4=[15.036,30.864,25.632]', [15.036,30.864,25.632].every((v,i)=>near(p.hist[4][i],v))]);
+  checks.push(['pla.picoSalida=25.632 ciclo 4', near(p.maxSal,25.632)&&p.kmax===4]); checks.push(['pla.inv[0][0]=2.4324', near(p.inv[0][0],2.4324)]);
+  const fails=checks.filter(c=>!c[1]); const b=document.getElementById('banner');
+  if(fails.length){ b.className='fail'; b.textContent='⚠ Validación interna FALLIDA: '+fails.map(c=>c[0]).join(', '); }
+  else { b.className='ok'; b.textContent='✔ Validación interna superada: '+checks.length+' comprobaciones de los tres casos base coinciden con el ejemplo numérico del informe.'; }
+  document.getElementById('val-txt').textContent=fails.length?'fallida':checks.length+'/'+checks.length+' pruebas superadas';
+  return fails.length===0;
+}
+
+/* =================== Inicialización =================== */
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.module').forEach(m=>m.classList.remove('active')); document.getElementById('m-'+b.dataset.m).classList.add('active'); V3.active=b.dataset.m; const v=V3.views[V3.active]; if(v) v.resize(); }));
+document.querySelectorAll('#m-red .scen').forEach(b=>b.addEventListener('click',()=>RED.load(RED.scen[b.dataset.s]())));
+document.querySelectorAll('#m-emb .scen').forEach(b=>b.addEventListener('click',()=>EMB.load(EMB.scen[b.dataset.s]())));
+document.querySelectorAll('#m-pla .scen').forEach(b=>b.addEventListener('click',()=>PLA.load(PLA.scen[b.dataset.s]())));
+document.getElementById('red-calc').onclick=()=>RED.calc(); document.getElementById('red-reset').onclick=()=>RED.load(RED.base());
+document.getElementById('red-csv').onclick=()=>exportCSV('red'); document.getElementById('red-json').onclick=()=>exportJSON('red');
+document.getElementById('red-cap').addEventListener('change',()=>RED.calc());
+document.getElementById('red-resize').onclick=()=>{ const n=+document.getElementById('red-n').value, m=+document.getElementById('red-m').value; const s={A:Array.from({length:n},()=>Array(m).fill(0)),d:Array(n).fill(0),cap:60}; RED.state.A.forEach((r,i)=>r.forEach((a,j)=>{ if(i<n&&j<m) s.A[i][j]=a; })); RED.state.d.forEach((a,i)=>{ if(i<n) s.d[i]=a; }); RED.load(s); };
+document.getElementById('emb-calc').onclick=()=>EMB.calc(); document.getElementById('emb-reset').onclick=()=>EMB.load(EMB.base());
+document.getElementById('emb-csv').onclick=()=>exportCSV('emb'); document.getElementById('emb-json').onclick=()=>exportJSON('emb');
+document.getElementById('emb-k').addEventListener('input',()=>EMB.calc()); document.getElementById('emb-th').addEventListener('change',()=>EMB.calc());
+document.getElementById('pla-calc').onclick=()=>PLA.calc(); document.getElementById('pla-reset').onclick=()=>PLA.load(PLA.base());
+document.getElementById('pla-csv').onclick=()=>exportCSV('pla'); document.getElementById('pla-json').onclick=()=>exportJSON('pla');
+document.getElementById('pla-k').addEventListener('input',()=>PLA.calc()); document.getElementById('pla-lim').addEventListener('change',()=>PLA.calc());
+
+validar();
+RED.load(RED.base()); EMB.load(EMB.base()); PLA.load(PLA.base());
+</script>
+</body>
+</html>
