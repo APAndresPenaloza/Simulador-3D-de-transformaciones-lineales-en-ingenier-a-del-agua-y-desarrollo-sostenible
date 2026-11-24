@@ -1,0 +1,132 @@
+/* Estilos compartidos por informe.html y manual.html */
+:root{
+  --surface:#fcfcfb; --surface-2:#f1f1ee; --border:#d9d8d2;
+  --text:#161616; --text-2:#52514e; --muted:#8a8984;
+  --acento:#2a78d6; --acento-osc:#1c4f8f; --acento-claro:#eef5fd;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--surface-2);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+a{color:var(--acento-osc)}
+.cab{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 22px}
+.sitio{display:flex;justify-content:space-between;align-items:center;gap:8px 14px;flex-wrap:wrap;font-size:.84rem;max-width:1240px;margin:0 auto}
+.sitio .marca{color:var(--text-2);font-weight:600;text-decoration:none}
+.enl{display:flex;gap:4px;flex-wrap:wrap}
+.enl a{color:var(--text-2);text-decoration:none;padding:4px 11px;border-radius:999px;border:1px solid transparent}
+.enl a:hover{background:var(--surface-2);border-color:var(--border);color:var(--text)}
+.enl a.act{background:var(--acento-claro);color:var(--acento-osc);border-color:#bcd3f0;font-weight:600}
+
+/* Portada */
+.portada{max-width:1240px;margin:0 auto;padding:30px 22px 8px;display:flex;gap:28px;align-items:flex-start;justify-content:space-between}
+.portada .sup{margin:0 0 6px;font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--acento-osc);font-weight:700}
+.portada h1{margin:0 0 8px;font-size:clamp(1.45rem,2.6vw,2.05rem);line-height:1.22;max-width:900px}
+.portada .subt{margin:0 0 8px;color:var(--text-2);font-size:1.05rem;max-width:860px}
+.portada .autor{margin:0 0 14px;color:var(--text-2)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-block;text-decoration:none;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px;border-radius:8px;font-size:.9rem}
+.btn:hover{background:#fff;border-color:#bfbdb5}
+.btn.primario{background:var(--acento);border-color:var(--acento);color:#fff;font-weight:600}
+.btn.primario:hover{background:#1f68c1}
+.portada-qr{margin:0;flex:none;text-align:center;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 10px 6px}
+.portada-qr img{width:132px;height:auto;display:block}
+.portada-qr figcaption{font-size:.72rem;color:var(--text-2);max-width:132px;line-height:1.3}
+
+/* Cuerpo con índice lateral */
+.doc-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:26px;max-width:1240px;margin:0 auto;padding:18px 22px 50px;align-items:start}
+.indice{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;font-size:.84rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 10px}
+.indice .ind-t{margin:0 6px 6px;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.indice a{display:block;padding:3px 8px;border-radius:6px;color:var(--text-2);text-decoration:none;line-height:1.35}
+.indice a:hover{background:var(--surface-2);color:var(--text)}
+.indice a.n2{padding-left:20px;font-size:.8rem}
+.doc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:38px 54px 46px;min-width:0}
+.indice-imp{display:none}
+@media (max-width:980px){
+  .doc-grid{grid-template-columns:1fr}
+  .indice{position:static;max-height:none}
+  .doc{padding:26px 20px 34px}
+  .portada{flex-direction:column}
+}
+
+/* Tipografía del informe (APA) */
+.doc.informe{font-family:Georgia,"Times New Roman",Times,serif;font-size:1.04rem;line-height:1.72}
+.doc.informe h2{font-size:1.28rem;text-align:center;margin:34px 0 12px;font-weight:700}
+.doc.informe h3{font-size:1.08rem;margin:24px 0 8px;font-weight:700}
+.doc.informe h4{font-size:1.02rem;margin:18px 0 6px;font-weight:700;font-style:italic}
+.doc.informe p{margin:0 0 12px;text-indent:2em;text-align:justify;hyphens:auto}
+.doc.informe p.sin,.doc.informe p.cap,.doc.informe p.nota-t,.doc.informe p.ref{text-indent:0}
+.doc.informe h2.apx span{display:block;font-size:1.1rem;margin-top:2px}
+
+/* Tipografía del manual */
+.doc.manual{font-size:1rem;line-height:1.62}
+.doc.manual h2{font-size:1.38rem;margin:38px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--acento)}
+.doc.manual h2:first-of-type{margin-top:4px}
+.doc.manual h3{font-size:1.1rem;margin:26px 0 8px}
+.doc.manual h4{font-size:1rem;margin:18px 0 6px}
+.doc.manual p{margin:0 0 11px}
+
+/* Elementos comunes */
+.doc ul,.doc ol{margin:0 0 14px;padding-left:1.6em}
+.doc li{margin:0 0 6px}
+.doc code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.doc pre{background:#f6f6f3;border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow:auto;font-size:.76rem;line-height:1.45}
+.doc pre code{background:none;padding:0}
+.eq{display:flex;align-items:center;margin:4px 0 14px}
+.eq .c{flex:1;text-align:center}
+.eq .n{width:3.5em;text-align:right}
+figure.tabla,figure.figura{margin:22px 0 20px}
+.cap{margin:0 0 6px;line-height:1.45;font-size:.98em}
+.tab-scroll{overflow-x:auto}
+figure.tabla table{border-collapse:collapse;width:100%;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.86rem;line-height:1.4;font-variant-numeric:tabular-nums}
+figure.tabla th,figure.tabla td{padding:5px 9px;text-align:left;vertical-align:top}
+figure.tabla thead th{border-top:1.5px solid #222;border-bottom:1px solid #222;font-weight:600}
+figure.tabla tbody tr:last-child td{border-bottom:1.5px solid #222}
+figure.tabla code{font-size:.82em;word-break:break-all}
+figure.figura img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--border);border-radius:6px}
+figure.figura a{display:block}
+figure.figura figcaption,.nota-t{font-size:.9em;color:var(--text-2);margin-top:8px;line-height:1.45}
+.doc.informe figure.figura figcaption{text-align:justify}
+p.ref{padding-left:2em;text-indent:-2em!important;margin-bottom:10px;text-align:left!important;word-break:break-word}
+aside.nota{border-left:5px solid var(--acento);background:var(--acento-claro);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0 16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.93rem;line-height:1.5}
+aside.nota.consejo{border-color:#1b8a5a;background:#e8f6ee}
+aside.nota.atencion{border-color:#c98500;background:#fff6e0}
+ol.pasos{list-style:none;counter-reset:paso;padding-left:0}
+ol.pasos>li{counter-increment:paso;position:relative;padding-left:40px;margin-bottom:10px;min-height:28px}
+ol.pasos>li::before{content:counter(paso);position:absolute;left:0;top:-1px;width:28px;height:28px;border-radius:50%;background:var(--acento);color:#fff;font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.marcas{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d6336c;color:#fff;font-weight:700;font-size:.78rem;vertical-align:1px}
+.qrs{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+.qrs figure{margin:0;text-align:center;max-width:220px}
+.qrs img{width:180px;height:auto;border:1px solid var(--border);border-radius:8px;background:#fff}
+.qrs figcaption{font-size:.8rem;line-height:1.35;word-break:break-all}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid #bbb;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:#fafafa}
+.pie{max-width:1240px;margin:0 auto;padding:0 22px 30px;color:var(--muted);font-size:.82rem}
+.pie a{color:var(--text-2)}
+
+/* Impresión (el manual en PDF se genera con estas reglas) */
+@media print{
+  @page{size:A4;margin:18mm 16mm 20mm}
+  body{background:#fff;font-size:10.5pt}
+  .cab,.indice,.acciones,.pie{display:none!important}
+  .portada{padding:0;max-width:none;min-height:240mm;flex-direction:column;justify-content:center;align-items:center;text-align:center;break-after:page}
+  .portada h1{font-size:24pt;max-width:none}
+  .portada .subt{font-size:13pt;margin:0 auto 8px}
+  .portada-qr{border:0;margin-top:16mm}
+  .portada-qr img{width:42mm}
+  .portada-qr figcaption{max-width:none;font-size:9pt}
+  .doc-grid{display:block;padding:0;max-width:none}
+  .doc{border:0;padding:0;border-radius:0}
+  .indice-imp{display:block;break-after:page}
+  .indice-imp h2{border:0!important}
+  .indice-imp ol{font-size:11pt;line-height:1.9}
+  .doc.manual h2.sec{break-before:page}
+  .doc.manual h2,.doc.manual h3,.doc.manual h4{break-after:avoid}
+  figure.tabla,figure.figura,aside.nota,ol.pasos>li,pre{break-inside:avoid}
+  figure.figura img{max-height:205mm;width:auto;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  .doc a[href^="http"]::after{content:""}
+}
+ol.leyenda{list-style:none;counter-reset:ley;padding-left:0;margin-top:-4px}
+ol.leyenda>li{counter-increment:ley;position:relative;padding-left:34px;margin-bottom:7px}
+ol.leyenda>li::before{content:counter(ley);position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:50%;background:#d6336c;color:#fff;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center}
+@media print{ol.leyenda>li{break-inside:avoid}}
+.indice-imp ol{list-style:none;padding-left:0}

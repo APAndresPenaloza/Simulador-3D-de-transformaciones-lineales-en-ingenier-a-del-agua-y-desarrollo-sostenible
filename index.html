@@ -36,6 +36,8 @@ table.mat{border-collapse:collapse;font-family:var(--mono);font-size:.82rem}
 table.mat th{font-weight:500;color:var(--muted);padding:2px 4px;font-family:system-ui;font-size:.75rem;white-space:nowrap}
 table.mat td{padding:1px}
 table.mat input{width:58px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:.82rem;text-align:right;background:#fff}
+table.mat select{padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:.85rem;background:#fff}
+table.mat select.falta{border-color:var(--warn);background:#fff6e0}
 table.mat input:focus{outline:2px solid var(--s1);border-color:transparent}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
 .row label{font-size:.85rem;color:var(--text-2)}
@@ -68,10 +70,48 @@ footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
 .h3d{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .h3d h2{margin:0}.h3d span{font-size:.8rem;color:var(--muted)}
 .tbl td:first-child,.tbl th:first-child{text-align:left}
+.sitio{display:flex;justify-content:space-between;align-items:center;gap:8px 14px;flex-wrap:wrap;margin:0 0 8px;font-size:.84rem}
+.sitio .marca{color:var(--text-2);font-weight:600;letter-spacing:.01em}
+.enl{display:flex;gap:4px;flex-wrap:wrap}
+.enl a{color:var(--text-2);text-decoration:none;padding:4px 11px;border-radius:999px;border:1px solid transparent}
+.enl a:hover{background:var(--surface-2);border-color:var(--border);color:var(--text)}
+.enl a.act{background:#eef5fd;color:#1c4f8f;border-color:#bcd3f0;font-weight:600}
+nav button.rep{border-color:#bcd3f0}
+.aviso{margin:8px 22px 0;padding:8px 12px;border-radius:8px;font-size:.9rem;background:#eef5fd;border:1px solid #bcd3f0;color:#1c4f8f;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.aviso[hidden]{display:none}
+table.mat input.malo{border-color:var(--bad);background:#fdecea}
+table.mat tr:first-child th{white-space:normal;line-height:1.15;vertical-align:bottom}
+table.mat input[readonly]{background:var(--surface-2);color:var(--text-2)}
+footer a{color:var(--text-2)}
+.rep-grid{display:grid;grid-template-columns:minmax(320px,400px) 1fr;gap:16px;align-items:start}
+@media(max-width:1000px){.rep-grid{grid-template-columns:1fr}}
+.campo{display:flex;flex-direction:column;gap:3px;margin:0 0 9px;font-size:.85rem;color:var(--text-2)}
+.campo input,.campo textarea{padding:6px 8px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:.92rem;color:var(--text);background:#fff}
+.campo textarea{min-height:104px;resize:vertical}
+.chk{display:flex;flex-direction:column;gap:5px;font-size:.88rem;margin:2px 0 8px}
+.chk label{display:flex;gap:7px;align-items:center;cursor:pointer}
+.chk input[type=url]{padding:4px 6px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:.85rem}
+.qr-prev{display:flex;gap:12px;align-items:flex-start;margin-top:6px}
+.qr-prev .qr{width:124px;height:124px;flex:none;border:1px solid var(--border);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center}
+.qr-prev .qr svg{width:116px;height:116px}
+.enlace{font-family:var(--mono);font-size:.7rem;word-break:break-all;color:var(--text-2);background:var(--surface-2);padding:5px 7px;border-radius:6px;max-height:86px;overflow:auto}
+.hoja-marco{background:#e4e3de;border-radius:10px;padding:18px;overflow:auto;max-height:calc(100vh - 120px)}
+.ayuda{font-size:.8rem;color:var(--muted);margin:4px 0 0}
+#rep-msg{color:var(--good);font-weight:600}
+@media print{
+  body.tab-rep{background:#fff}
+  body.tab-rep header,body.tab-rep nav,body.tab-rep #banner,body.tab-rep #aviso,body.tab-rep footer,body.tab-rep .rep-form{display:none!important}
+  body.tab-rep main{padding:0}
+  body.tab-rep .rep-grid{display:block}
+  body.tab-rep .hoja-marco{background:none;padding:0;max-height:none;overflow:visible;border-radius:0}
+  body.tab-rep .hoja{border:0;box-shadow:none;max-width:none;padding:0;border-radius:0}
+}
 </style>
 </head>
 <body>
 <header>
+  <div class="sitio"><span class="marca">Álgebra lineal aplicada a la ingeniería del agua y el desarrollo sostenible</span>
+    <div class="enl"><a class="act" href="./">Simulador</a><a href="informe.html">Informe del proyecto</a><a href="manual.html">Manual de usuario</a><a href="https://github.com/APAndresPenaloza/Simulador-3D-de-transformaciones-lineales-en-ingenier-a-del-agua-y-desarrollo-sostenible" target="_blank" rel="noopener">Código en GitHub</a></div></div>
   <h1>Simulador 3D de transformaciones lineales en ingeniería del agua y desarrollo sostenible</h1>
   <p>Tres sistemas hídricos modelados como T(<b>x</b>) = A<b>x</b>. Edite la matriz A y el vector de entrada, cambie de escenario y observe qué propiedad del álgebra lineal gobierna cada sistema.</p>
 </header>
@@ -79,8 +119,10 @@ footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
   <button class="active" data-m="red">1 · Red de distribución (matriz de incidencia)</button>
   <button data-m="emb">2 · Embalse (cadena de Markov)</button>
   <button data-m="pla">3 · Planta de tratamiento (mezcla y atenuación)</button>
+  <button data-m="rep" class="rep">4 · Informe con QR</button>
 </nav>
 <div id="banner"></div>
+<div id="aviso" class="aviso" hidden></div>
 <main>
 
 <!-- ============ MÓDULO 1: RED ============ -->
@@ -90,15 +132,18 @@ footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
   <div class="card">
     <h2>Entradas</h2>
     <div class="what"><b>¿Qué estás viendo?</b> A es la <i>matriz de incidencia</i> nodo‑tubería: +1 si la tubería entra al nodo, −1 si sale. El balance de masa de toda la red se escribe como una sola transformación lineal: A·<b>q</b> = <b>d</b>, donde <b>q</b> son los caudales en las tuberías (L/s) y <b>d</b> la demanda neta en cada nodo (negativa en la fuente).</div>
-    <div class="row">
-      <label>Nodos <input class="small" type="number" id="red-n" min="3" max="8" value="5"></label>
-      <label>Tuberías <input class="small" type="number" id="red-m" min="2" max="12" value="6"></label>
-      <button class="btn" id="red-resize">Redimensionar</button>
+    <div class="row" style="display:none">
+      <input type="number" id="red-n" value="5"><input type="number" id="red-m" value="6"><button id="red-resize"></button>
     </div>
-    <h3>Matriz de incidencia A (nodos × tuberías)</h3>
-    <div id="red-A"></div>
-    <h3>Demanda neta d (L/s) · negativa = fuente</h3>
+    <h3>Editor rápido de la red</h3>
+    <p style="font-size:.85rem;color:var(--text-2);margin:0 0 6px">Elija de qué nodo sale y a cuál llega cada tubería; la matriz A se arma sola y todo se recalcula al instante.</p>
+    <div class="row"><button class="btn primary" id="red-addn">+ Nodo</button><button class="btn" id="red-addp">+ Tubería</button><button class="btn" id="red-deln">− Último nodo</button></div>
+    <div id="red-pipes"></div>
+    <h3>Demanda de cada nodo (L/s)</h3>
     <div id="red-d"></div>
+    <label style="font-size:.85rem;color:var(--text-2);display:flex;gap:6px;align-items:flex-start;margin-top:6px"><input type="checkbox" id="red-auto" checked> <span>La fuente se ajusta sola para compensar las demandas (desmarque para escribir un valor negativo propio y explorar sistemas inconsistentes).</span></label>
+    <h3>Matriz de incidencia A resultante (nodos × tuberías)</h3>
+    <div id="red-A"></div>
     <h3>Capacidad de la fuente (L/s)</h3>
     <div class="row"><input class="small" type="number" id="red-cap" value="60" step="1"></div>
     <h3>Escenarios</h3>
@@ -147,6 +192,7 @@ footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
     <div class="what"><b>¿Qué estás viendo?</b> El nivel del embalse se clasifica en cuatro estados. La columna j de A contiene las probabilidades de pasar <i>desde</i> el estado j a cada estado en un mes (cada columna suma 1: matriz estocástica). La distribución de probabilidad del mes k+1 es la transformación lineal x<sub>k+1</sub> = A·x<sub>k</sub>.</div>
     <h3>Matriz de transición A (hacia × desde)</h3>
     <div id="emb-A"></div>
+    <div class="row"><button class="btn" id="emb-norm">Normalizar: que cada columna sume 1</button></div>
     <h3>Estado inicial x₀ (probabilidades)</h3>
     <div id="emb-x"></div>
     <div class="slider"><label>Meses a simular</label><input type="range" id="emb-k" min="1" max="36" value="12"><span id="emb-kv">12</span></div>
@@ -229,11 +275,68 @@ footer{color:var(--muted);font-size:.8rem;padding:0 22px 20px}
 </div>
 </div>
 </section>
+
+<!-- ============ MÓDULO 4: INFORME CON QR ============ -->
+<section class="module" id="m-rep">
+<div class="rep-grid">
+<div class="rep-form">
+  <div class="card">
+    <h2>Datos del informe</h2>
+    <div class="what"><b>¿Qué hace este panel?</b> Arma un informe con los resultados actuales de los sistemas que elija (matrices, propiedades, indicadores y capturas) y le agrega un código QR. Por defecto el QR abre el simulador con exactamente los mismos valores, para que cualquier persona pueda reproducir y revisar la simulación.</div>
+    <label class="campo">Título<input type="text" id="rep-tit" value="Informe de simulación: transformaciones lineales en sistemas hídricos"></label>
+    <label class="campo">Autor(es)<input type="text" id="rep-aut" placeholder="Nombre y apellidos"></label>
+    <label class="campo">Institución, curso o grupo<input type="text" id="rep-ins" placeholder="Opcional"></label>
+    <label class="campo">Fecha<input type="date" id="rep-fecha"></label>
+    <label class="campo">Observaciones y conclusiones<textarea id="rep-obs" placeholder="¿Qué escenario evaluó? ¿Qué propiedad de la matriz explica el resultado? ¿Qué decisión de gestión del agua recomienda?"></textarea></label>
+  </div>
+  <div class="card">
+    <h2>Contenido</h2>
+    <h3>Sistemas</h3>
+    <div class="chk">
+      <label><input type="checkbox" id="rep-m-red" checked> Red de distribución</label>
+      <label><input type="checkbox" id="rep-m-emb" checked> Embalse</label>
+      <label><input type="checkbox" id="rep-m-pla" checked> Planta de tratamiento</label>
+    </div>
+    <h3>Incluir</h3>
+    <div class="chk">
+      <label><input type="checkbox" id="rep-o-ent" checked> Matrices, vectores y tablas de resultados</label>
+      <label><input type="checkbox" id="rep-o-prop" checked> Propiedades de la transformación</label>
+      <label><input type="checkbox" id="rep-o-3d" checked> Capturas de las vistas 3D</label>
+      <label><input type="checkbox" id="rep-o-2d" checked> Gráficas 2D</label>
+      <label><input type="checkbox" id="rep-o-tab" checked> Tablas de evolución (meses y ciclos)</label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Código QR</h2>
+    <h3>El QR abre</h3>
+    <div class="chk">
+      <label><input type="radio" name="rep-qr" value="sim" checked> Esta simulación, con los valores actuales</label>
+      <label><input type="radio" name="rep-qr" value="inicio"> La página principal del simulador</label>
+      <label><input type="radio" name="rep-qr" value="informe"> El informe del proyecto</label>
+      <label><input type="radio" name="rep-qr" value="manual"> El manual de usuario</label>
+      <label><input type="radio" name="rep-qr" value="otra"> Otra dirección</label>
+      <input type="url" id="rep-otra" placeholder="https://…" aria-label="Otra dirección para el QR">
+    </div>
+    <div class="qr-prev"><div class="qr" id="rep-qr"></div><div style="flex:1;min-width:0"><div class="enlace" id="rep-enlace"></div><div class="row"><button class="btn" id="rep-copiar">Copiar enlace</button><button class="btn" id="rep-png">Descargar QR (PNG)</button></div></div></div>
+    <label class="campo" style="margin-top:10px">Dirección pública del simulador<input type="url" id="rep-base"></label>
+    <p class="ayuda">Con esta dirección se construyen los enlaces del QR. Cámbiela solo si publicó su propia copia del simulador.</p>
+  </div>
+  <div class="card">
+    <h2>Generar</h2>
+    <div class="row"><button class="btn primary" id="rep-imprimir">Imprimir o guardar PDF</button><button class="btn" id="rep-html">Descargar informe (HTML)</button><button class="btn" id="rep-act">Actualizar vista previa</button></div>
+    <p class="ayuda">Para obtener un PDF, elija «Guardar como PDF» como destino en el diálogo de impresión. <span id="rep-msg"></span></p>
+  </div>
+</div>
+<div class="hoja-marco"><div id="rep-sheet"></div></div>
+</div>
+</section>
 </main>
-<footer>Simulador 3D de código abierto (HTML + JavaScript + Three.js). Validación interna: <span id="val-txt">pendiente</span>.</footer>
+<footer>Simulador 3D de código abierto (HTML + JavaScript + Three.js), versión 2.0 · <a href="informe.html">Informe del proyecto</a> · <a href="manual.html">Manual de usuario</a> · Validación interna: <span id="val-txt">pendiente</span>. Bibliotecas: three.js r128 y qrcode-generator de Kazuhiko Arase (licencia MIT). «QR Code» es marca registrada de DENSO WAVE INCORPORATED.</footer>
 
 <script src="three.min.js"></script>
 <script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="qrcode.js"></script>
+<script>window.qrcode||document.write('<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"><\/script>')</script>
 <script>
 /* =================== Álgebra lineal (JS puro) =================== */
 const LA = {
@@ -305,15 +408,25 @@ const f = (x,d=3) => (Math.abs(x)<5e-4?0:x).toFixed(d).replace(/\.?0+$/,m=>m.inc
 const fv = (v,d=3) => '[ ' + v.map(a=>f(a,d)).join(',  ') + ' ]';
 
 /* =================== Utilidades de interfaz =================== */
+function numeroDe(txt){ const t=String(txt==null?'':txt).trim().replace(',','.'); if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t)) return null; const v=parseFloat(t); return isFinite(v)?v:null; }
+function campoVivo(inp, asignar){
+  inp.addEventListener('focus',()=>{ try{ inp.select(); }catch(e){} });
+  inp.addEventListener('input',()=>{ const v=numeroDe(inp.value), t=inp.value.trim(); inp.classList.toggle('malo', v===null && t!=='' && t!=='-' && t!=='+' && t!=='.' && t!==','); if(v!==null) asignar(v); });
+  inp.addEventListener('change',()=>{ if(numeroDe(inp.value)===null){ inp.value='0'; inp.classList.remove('malo'); asignar(0); } });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const tabla=inp.closest('table')||document; const todos=[...tabla.querySelectorAll('input:not([readonly])')]; const k=todos.indexOf(inp); (todos[k+1]||todos[0]).focus(); } });
+}
 function matrixEditor(container, M, rowLabels, colLabels, onChange){
   const el=document.getElementById(container); let h='<table class="mat"><tr><th></th>'+colLabels.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
-  M.forEach((r,i)=>{ h+='<tr><th>'+rowLabels[i]+'</th>'+r.map((a,j)=>`<td><input type="number" step="any" data-i="${i}" data-j="${j}" value="${f(a,4)}"></td>`).join('')+'</tr>'; });
+  M.forEach((r,i)=>{ h+='<tr><th>'+rowLabels[i]+'</th>'+r.map((a,j)=>`<td><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-i="${i}" data-j="${j}" value="${f(a,4)}" aria-label="${(rowLabels[i]||'fila '+(i+1))+' · '+colLabels[j]}"></td>`).join('')+'</tr>'; });
   el.style.overflowX='auto'; el.style.paddingBottom='4px'; el.innerHTML=h+'</table>';
-  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{ M[+inp.dataset.i][+inp.dataset.j]=parseFloat(inp.value)||0; onChange&&onChange(); }));
+  el.querySelectorAll('input').forEach(inp=>campoVivo(inp, v=>{ M[+inp.dataset.i][+inp.dataset.j]=v; onChange&&onChange(); }));
 }
-function vectorEditor(container, v, labels, onChange){ matrixEditor(container, [v], [''], labels, onChange); const el=document.getElementById(container); el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{ v[+inp.dataset.j]=parseFloat(inp.value)||0; onChange&&onChange(); })); }
+function vectorEditor(container, v, labels, onChange){ matrixEditor(container, [v], [''], labels, onChange); }
+function enMarco(){ try{ return window.self!==window.top; }catch(e){ return true; } }
+function descargarBlob(nombre, blob){ try{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },2500); }catch(e){} }
 function download(name, text, type){
-  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; a.click(); }catch(e){}
+  descargarBlob(name, new Blob([text],{type}));
+  if(!enMarco()) return;
   let d=document.getElementById('exp'); if(!d){ d=document.createElement('div'); d.id='exp'; d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9'; d.innerHTML='<div style="background:#fff;border-radius:10px;padding:16px;width:min(720px,92vw)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b id="exp-t"></b><span><button class="btn" id="exp-c">Copiar</button> <button class="btn" id="exp-x">Cerrar</button></span></div><textarea id="exp-a" style="width:100%;height:300px;font-family:var(--mono);font-size:.8rem" readonly></textarea><p style="font-size:.8rem;color:var(--muted);margin:6px 0 0">Si la descarga automática no se inicia, copie el contenido y guárdelo con el nombre indicado.</p></div>'; document.body.appendChild(d);
     document.getElementById('exp-x').onclick=()=>d.style.display='none'; document.getElementById('exp-c').onclick=()=>{ const a=document.getElementById('exp-a'); a.select(); try{ navigator.clipboard.writeText(a.value); }catch(e){ document.execCommand('copy'); } }; }
   d.style.display='flex'; document.getElementById('exp-t').textContent=name; document.getElementById('exp-a').value=text;
@@ -327,7 +440,22 @@ const RED = {
   state:null, alpha:[],
   load(s){ RED.state=s; RED.alpha=[]; document.getElementById('red-cap').value=s.cap; document.getElementById('red-n').value=s.A.length; document.getElementById('red-m').value=s.A[0].length; RED.render(); RED.calc(); },
   labels(){ const n=RED.state.A.length, m=RED.state.A[0].length; return {N:Array.from({length:n},(_,i)=>'N'+(i+1)), T:Array.from({length:m},(_,j)=>'t'+(j+1))}; },
-  render(){ const {N,T}=RED.labels(); matrixEditor('red-A',RED.state.A,N,T,()=>{RED.alpha=[];}); vectorEditor('red-d',RED.state.d,N); },
+  render(){ const {N,T}=RED.labels(), S=RED.state;
+    matrixEditor('red-A',S.A,N,T,()=>{ RED.alpha=[]; RED.renderPipes(); RED.calc(); });
+    RED.renderPipes();
+    const el=document.getElementById('red-d');
+    el.innerHTML='<table class="mat">'+N.map((nn,i)=>`<tr><th style="text-align:left">${nn}</th><td><input type="text" inputmode="decimal" autocomplete="off" data-i="${i}" value="${f(S.d[i],4)}" style="width:84px" aria-label="Demanda de ${nn}"></td><th style="text-align:left" data-tag="${i}"></th></tr>`).join('')+'</table>';
+    el.querySelectorAll('input').forEach(inp=>campoVivo(inp, v=>{ S.d[+inp.dataset.i]=v; RED.calc(); })); },
+  renderPipes(){ const {N,T}=RED.labels(), S=RED.state, el=document.getElementById('red-pipes');
+    const opt=sel=>'<option value="-1">— elegir —</option>'+N.map((nn,i)=>`<option value="${i}"${i===sel?' selected':''}>${nn}</option>`).join('');
+    el.innerHTML='<table class="mat"><tr><th></th><th>sale de</th><th></th><th>llega a</th><th></th></tr>'+T.map((t,j)=>{ const col=S.A.map(r=>r[j]), a=col.indexOf(-1), b=col.indexOf(1);
+      return `<tr><th>${t}</th><td><select data-j="${j}" data-k="a" class="${a<0?'falta':''}">${opt(a)}</select></td><th>→</th><td><select data-j="${j}" data-k="b" class="${b<0?'falta':''}">${opt(b)}</select></td><td><button class="btn" data-del="${j}" title="Eliminar tubería">✕</button></td></tr>`; }).join('')+'</table>';
+    el.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',()=>{ const j=+sel.dataset.j, a=+el.querySelector(`select[data-j="${j}"][data-k="a"]`).value, b=+el.querySelector(`select[data-j="${j}"][data-k="b"]`).value;
+      S.A.forEach(r=>r[j]=0); if(a>=0) S.A[a][j]=-1; if(b>=0&&b!==a) S.A[b][j]=1; RED.alpha=[]; RED.render(); RED.calc(); }));
+    el.querySelectorAll('[data-del]').forEach(bt=>bt.addEventListener('click',()=>{ if(S.A[0].length<=1) return; const j=+bt.dataset.del; S.A.forEach(r=>r.splice(j,1)); RED.alpha=[]; RED.render(); RED.calc(); })); },
+  addNode(){ const S=RED.state, n=S.A.length; if(n>=12) return; S.A.forEach(r=>r.push(0)); const row=Array(S.A[0].length).fill(0); row[row.length-1]=1; S.A[n-1][row.length-1]=-1; S.A.push(row); S.d.push(0); RED.alpha=[]; RED.render(); RED.calc(); },
+  addPipe(){ const S=RED.state; if(S.A[0].length>=16) return; S.A.forEach(r=>r.push(0)); RED.alpha=[]; RED.render(); RED.calc(); },
+  delNode(){ const S=RED.state, n=S.A.length; if(n<=2) return; const last=S.A[n-1]; for(let j=last.length-1;j>=0;j--) if(last[j]!==0&&S.A[0].length>1) S.A.forEach(r=>r.splice(j,1)); S.A.pop(); S.d.pop(); RED.alpha=[]; RED.render(); RED.calc(); },
   compute(){
     const A=RED.state.A, d=RED.state.d, cap=parseFloat(document.getElementById('red-cap').value)||0;
     const n=A.length, m=A[0].length, rank=LA.rank(A), ker=LA.nullspace(A);
@@ -345,6 +473,11 @@ const RED = {
     return {A,d,n,m,rank,ker,q0,q,Aq,consistente,aislados,sueltas,sumd,demanda,fuente,cap,cobertura:demanda?cap/demanda:Infinity};
   },
   calc(){
+    { const S=RED.state; let src=0; S.d.forEach((x,i)=>{ if(x<S.d[src]) src=i; });
+      if(document.getElementById('red-auto').checked){ S.d[src]=-S.d.reduce((t,x,i)=>t+(i===src?0:x),0); const inp=document.querySelector('#red-d input[data-i="'+src+'"]'); if(inp) inp.value=f(S.d[src],4); }
+      const auto=document.getElementById('red-auto').checked;
+      document.querySelectorAll('#red-d input').forEach(x=>{ const i=+x.dataset.i; x.readOnly=auto&&i===src; x.title=x.readOnly?'Se calcula sola: desmarque la casilla de abajo para escribir este valor':''; });
+      document.querySelectorAll('#red-d [data-tag]').forEach(th=>{ const i=+th.dataset.tag; th.textContent=i===src&&S.d[i]<0?(auto?'fuente (automática)':'fuente (negativo)'):S.d[i]>0?'consumo':''; }); }
     const r=RED.compute(); const {N,T}=RED.labels();
     // sliders de núcleo
     const sl=document.getElementById('red-sliders');
@@ -354,7 +487,7 @@ const RED = {
     document.getElementById('red-Aq').textContent = N.map((nn,i)=>nn+': '+f(r.Aq[i],2)+' (d='+f(r.d[i],2)+')').join('   ');
     // indicador
     const ind=document.getElementById('red-ind');
-    if(!r.consistente){ ind.className='ind bad'; ind.innerHTML='<b>Sistema inconsistente</b> La suma de d es '+f(r.sumd,2)+' L/s ≠ 0 (o A no corresponde a una red conexa): el vector d no pertenece a la imagen de A y no existe ningún q que satisfaga el balance. Ajuste la fuente para que compense exactamente las demandas.'; }
+    if(!r.consistente){ ind.className='ind bad'; ind.innerHTML='<b>Sistema inconsistente</b> La suma de d es '+f(r.sumd,2)+' L/s ≠ 0 (o A no corresponde a una red conexa): el vector d no pertenece a la imagen de A y no existe ningún q que satisfaga el balance. Active la casilla «La fuente se ajusta sola» o corrija el valor de la fuente.'; }
     else { const c=r.cobertura; const cls=c>=1.1?'good':c>=1?'warn':'bad';
       ind.className='ind '+cls; ind.innerHTML=`<b>Índice de cobertura = capacidad / demanda = ${f(r.cap,1)} / ${f(r.demanda,1)} = ${f(c,2)}</b>`+(cls==='good'?'Sostenible: la fuente cubre la demanda con margen ≥ 10 %.':cls==='warn'?'En el límite: la fuente cubre la demanda sin margen para crecimiento o pérdidas.':'No sostenible: la demanda supera la capacidad de la fuente; déficit de '+f(r.demanda-r.cap,1)+' L/s. Requiere gestión de demanda o nueva fuente (ODS 6.4).'); }
     if(r.aislados.length||r.sueltas.length){ ind.innerHTML+='<div style="margin-top:6px;font-size:.85rem">⚠ '+(r.aislados.length?'Nodos sin ninguna tubería: '+r.aislados.map(i=>N[i]).join(', ')+' (fila de ceros en A). ':'')+(r.sueltas.length?'Tuberías sin conectar: '+r.sueltas.map(j=>T[j]).join(', ')+'. Cada columna debe tener exactamente un −1 (nodo de salida) y un +1 (nodo de llegada); mientras tanto no se dibujan y aportan una dimensión extra al núcleo.':'')+'</div>'; }
@@ -409,7 +542,7 @@ const EMB = {
   base(){ return { A:[[0.70,0.20,0.05,0.00],[0.25,0.55,0.25,0.10],[0.05,0.20,0.50,0.40],[0.00,0.05,0.20,0.50]], x:[1,0,0,0] }; },
   state:null,
   load(s){ EMB.state=s; EMB.render(); EMB.calc(); },
-  render(){ matrixEditor('emb-A',EMB.state.A,EMB.S.map(s=>'→ '+s),EMB.S.map(s=>'desde '+s)); vectorEditor('emb-x',EMB.state.x,EMB.S); },
+  render(){ matrixEditor('emb-A',EMB.state.A,EMB.S.map(s=>'→ '+s),EMB.S.map(s=>'desde '+s),()=>EMB.calc()); vectorEditor('emb-x',EMB.state.x,EMB.S,()=>EMB.calc()); },
   compute(){
     const A=EMB.state.A, x0=EMB.state.x.slice(), K=+document.getElementById('emb-k').value, th=parseFloat(document.getElementById('emb-th').value);
     const colsum=A[0].map((_,j)=>A.reduce((s,r)=>s+r[j],0)); const estoc=colsum.every(c=>Math.abs(c-1)<1e-6)&&A.every(r=>r.every(a=>a>=-1e-12));
@@ -462,7 +595,7 @@ const PLA = {
   base(){ return { A:[[0.50,0.10,0.00],[0.40,0.50,0.10],[0.00,0.30,0.60]], x:[120,0,0] }; },
   state:null,
   load(s){ PLA.state=s; PLA.render(); PLA.calc(); },
-  render(){ matrixEditor('pla-A',PLA.state.A,PLA.U.map(u=>'→ '+u),PLA.U.map(u=>'desde '+u.slice(0,5)+'.')); vectorEditor('pla-x',PLA.state.x,PLA.U); },
+  render(){ matrixEditor('pla-A',PLA.state.A,PLA.U.map(u=>'→ '+u),PLA.U.map(u=>'desde '+u.slice(0,5)+'.'),()=>PLA.calc()); vectorEditor('pla-x',PLA.state.x,PLA.U,()=>PLA.calc()); },
   compute(){
     const A=PLA.state.A, x0=PLA.state.x.slice(), K=+document.getElementById('pla-k').value, lim=parseFloat(document.getElementById('pla-lim').value);
     const colsum=A[0].map((_,j)=>A.reduce((s,r)=>s+r[j],0)); const rem=colsum.map(c=>1-c);
@@ -568,7 +701,7 @@ RED.draw3D=function(r){
   v.onTick=dt=>moveParticles(parts,dt); moveParticles(parts,0);
   const sig=JSON.stringify(P);
   if(v.sig!==sig){ v.sig=sig; const xs=P.map(q=>q[0]), zs=P.map(q=>q[2]), cx=(Math.min(...xs)+Math.max(...xs))/2, cz=(Math.min(...zs)+Math.max(...zs))/2, ext=Math.max(Math.max(...xs)-Math.min(...xs), 1.7*(Math.max(...zs)-Math.min(...zs)));
-    v.setHome(0.45,1.02,Math.max(14,ext*1.12+2),[cx,1.8,cz]); }
+    v.setHome(0.45,1.02,Math.max(15,ext*1.3+4),[cx,1.8,cz]); }
 };
 EMB.draw3D=function(r){
   const v=get3D('emb'); if(!v) return; v.clear(); const g=v.group, K=r.K, Hh=4, lev=[0.875,0.625,0.375,0.125], cols=[0x2a78d6,0x1baf7a,0xeda100,0xe34948], cx=-9;
@@ -626,6 +759,288 @@ function exportCSV(mod){
 }
 function exportJSON(mod){ const st={red:RED.state,emb:EMB.state,pla:PLA.state}[mod]; download(mod+'_modelo.json', JSON.stringify(st,null,2), 'application/json'); }
 
+/* =================== Enlaces, estado en la URL e informe con QR =================== */
+const URL_PUBLICA='https://apandrespenaloza.github.io/Simulador-3D-de-transformaciones-lineales-en-ingenier-a-del-agua-y-desarrollo-sostenible/';
+const VERSION='2.0';
+const MOD_NOMBRE={red:'Red de distribución',emb:'Embalse',pla:'Planta de tratamiento'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=x=>{ const v=Math.round((+x||0)*1e6)/1e6; return String(Object.is(v,-0)?0:v); };
+const igualV=(a,b)=>!!a&&!!b&&a.length===b.length&&a.every((x,i)=>Math.abs(x-b[i])<1e-6);
+const igualM=(A,B)=>!!A&&!!B&&A.length===B.length&&A.every((r,i)=>igualV(r,B[i]));
+function campos(v){ const o={}; String(v||'').split(';').forEach(s=>{ const i=s.indexOf(':'); if(i>0) o[s.slice(0,i)]=s.slice(i+1); }); return o; }
+function lista(txt,n){ const a=String(txt==null?'':txt).split(',').map(Number); if((n&&a.length!==n)||a.some(x=>!isFinite(x))) throw new Error('lista'); return a; }
+function sitioBase(){ try{ if(/^https?:$/.test(location.protocol)&&!/claude|anthropic/i.test(location.hostname)) return location.origin+location.pathname.replace(/[^\/]*$/,''); }catch(e){} return URL_PUBLICA; }
+function urlBase(){ const el=document.getElementById('rep-base'); let v=el?el.value.trim():''; if(!/^https?:\/\/\S+$/i.test(v)) v=sitioBase(); v=v.split('#')[0].split('?')[0]; if(!/\.html?$/i.test(v)&&!v.endsWith('/')) v+='/'; return v; }
+function esIncidencia(A){ return A[0].every((_,j)=>{ const c=A.map(r=>r[j]); return c.filter(x=>x===-1).length===1&&c.filter(x=>x===1).length===1&&c.filter(x=>x!==0).length===2; }); }
+
+/* --- Codificación compacta del escenario: #sim=1&m=red&r=...&e=...&p=... --- */
+function codRed(){
+  const S=RED.state, n=S.A.length, m=S.A[0].length, cap=parseFloat(document.getElementById('red-cap').value)||0, auto=document.getElementById('red-auto').checked, alfa=RED.alpha.some(a=>a);
+  if(auto&&!alfa) for(const k in RED.scen){ const b=RED.scen[k](); if(igualM(b.A,S.A)&&igualV(b.d,S.d)&&Math.abs(b.cap-cap)<1e-9) return 's:'+k; }
+  const p=['n:'+n];
+  if(esIncidencia(S.A)) p.push('t:'+S.A[0].map((_,j)=>{ const c=S.A.map(r=>r[j]); return (c.indexOf(-1)+1)+'-'+(c.indexOf(1)+1); }).join(','));
+  else p.push('m:'+m,'M:'+S.A.flat().map(nf).join(','));
+  p.push('d:'+S.d.map(nf).join(','),'c:'+nf(cap));
+  if(!auto) p.push('f:0');
+  if(alfa) p.push('a:'+RED.alpha.map(a=>nf(a||0)).join(','));
+  return p.join(';');
+}
+function decRed(v){
+  const o=campos(v);
+  if(o.s){ if(!RED.scen[o.s]) throw new Error('esc'); return {st:RED.scen[o.s](),auto:true,alpha:[]}; }
+  const n=parseInt(o.n,10); if(!(n>=2&&n<=12)) throw new Error('n');
+  let A;
+  if(o.t!==undefined){ const ps=o.t.split(',').filter(Boolean); if(!ps.length||ps.length>16) throw new Error('t');
+    A=Array.from({length:n},()=>Array(ps.length).fill(0));
+    ps.forEach((pp,j)=>{ const ab=pp.split('-').map(x=>parseInt(x,10)-1); if(ab.length!==2||!(ab[0]>=0&&ab[0]<n&&ab[1]>=0&&ab[1]<n&&ab[0]!==ab[1])) throw new Error('tubo'); A[ab[0]][j]=-1; A[ab[1]][j]=1; }); }
+  else { const m=parseInt(o.m,10); if(!(m>=1&&m<=16)) throw new Error('m'); const a=lista(o.M,n*m); A=Array.from({length:n},(_,i)=>a.slice(i*m,(i+1)*m)); }
+  const d=lista(o.d,n), cap=Number(o.c);
+  return {st:{A,d,cap:isFinite(cap)?cap:60},auto:o.f!=='0',alpha:o.a?lista(o.a):[]};
+}
+function codEmb(){ const S=EMB.state, k='k:'+(+document.getElementById('emb-k').value)+';u:'+nf(parseFloat(document.getElementById('emb-th').value));
+  for(const s in EMB.scen){ const b=EMB.scen[s](); if(igualM(b.A,S.A)&&igualV(b.x,S.x)) return 's:'+s+';'+k; }
+  return 'A:'+S.A.flat().map(nf).join(',')+';x:'+S.x.map(nf).join(',')+';'+k; }
+function decEmb(v){ const o=campos(v); let st;
+  if(o.s){ if(!EMB.scen[o.s]) throw new Error('esc'); st=EMB.scen[o.s](); } else { const a=lista(o.A,16); st={A:[0,1,2,3].map(i=>a.slice(4*i,4*i+4)),x:lista(o.x,4)};
+    // el enlace guarda 6 decimales: si una columna suma 1 salvo redondeo, se renormaliza para conservar la matriz estocástica
+    for(let j=0;j<4;j++){ const t=st.A.reduce((u,r)=>u+r[j],0); if(Math.abs(t-1)<1e-4&&st.A.every(r=>r[j]>=0)) st.A.forEach(r=>{ r[j]/=t; }); }
+    const tx=st.x.reduce((u,y)=>u+y,0); if(Math.abs(tx-1)<1e-4&&st.x.every(y=>y>=0)) st.x=st.x.map(y=>y/tx); }
+  const k=parseInt(o.k,10), u=parseFloat(o.u); return {st,k:k>=1&&k<=36?k:12,u:isFinite(u)?u:0.3}; }
+function codPla(){ const S=PLA.state, k='k:'+(+document.getElementById('pla-k').value)+';l:'+nf(parseFloat(document.getElementById('pla-lim').value));
+  for(const s in PLA.scen){ const b=PLA.scen[s](); if(igualM(b.A,S.A)&&igualV(b.x,S.x)) return 's:'+s+';'+k; }
+  return 'A:'+S.A.flat().map(nf).join(',')+';x:'+S.x.map(nf).join(',')+';'+k; }
+function decPla(v){ const o=campos(v); let st;
+  if(o.s){ if(!PLA.scen[o.s]) throw new Error('esc'); st=PLA.scen[o.s](); } else { const a=lista(o.A,9); st={A:[0,1,2].map(i=>a.slice(3*i,3*i+3)),x:lista(o.x,3)}; }
+  const k=parseInt(o.k,10), l=parseFloat(o.l); return {st,k:k>=1&&k<=40?k:12,l:isFinite(l)?l:30}; }
+function codificarEstado(mods){ const p=['sim=1','m='+(mods[0]||'red')]; if(mods.includes('red')) p.push('r='+codRed()); if(mods.includes('emb')) p.push('e='+codEmb()); if(mods.includes('pla')) p.push('p='+codPla()); return p.join('&'); }
+
+function activarPestana(m){
+  if(!document.getElementById('m-'+m)) return;
+  document.querySelectorAll('nav button[data-m]').forEach(x=>x.classList.toggle('active',x.dataset.m===m));
+  document.querySelectorAll('.module').forEach(s=>s.classList.toggle('active',s.id==='m-'+m));
+  document.body.classList.toggle('tab-rep',m==='rep');
+  V3.active=m; const v=V3.views[m]; if(v) v.resize();
+  if(m==='rep') INF.generar();
+}
+function volverABase(){
+  document.getElementById('red-auto').checked=true; document.getElementById('emb-k').value=12; document.getElementById('emb-th').value=0.30; document.getElementById('pla-k').value=12; document.getElementById('pla-lim').value=30;
+  RED.load(RED.base()); EMB.load(EMB.base()); PLA.load(PLA.base());
+  document.getElementById('aviso').hidden=true; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+}
+function aplicarHash(){
+  let h=''; try{ h=decodeURIComponent((location.hash||'').slice(1)); }catch(e){ h=(location.hash||'').slice(1); }
+  if(!h) return;
+  const tabs={red:'red',embalse:'emb',emb:'emb',planta:'pla',pla:'pla',informe:'rep',rep:'rep','informe-qr':'rep'};
+  if(tabs[h]){ activarPestana(tabs[h]); return; }
+  const o={}; h.split('&').forEach(s=>{ const i=s.indexOf('='); if(i>0) o[s.slice(0,i)]=s.slice(i+1); });
+  if(o.sim!=='1') return;
+  const ok=[], mal=[];
+  if(o.r){ try{ const R=decRed(o.r); document.getElementById('red-auto').checked=R.auto; RED.load(R.st); if(R.alpha.length){ RED.alpha=R.alpha; RED.calc(); } ok.push(MOD_NOMBRE.red); }catch(e){ mal.push(MOD_NOMBRE.red); } }
+  if(o.e){ try{ const E=decEmb(o.e); document.getElementById('emb-k').value=E.k; document.getElementById('emb-th').value=E.u; EMB.load(E.st); ok.push(MOD_NOMBRE.emb); }catch(e){ mal.push(MOD_NOMBRE.emb); } }
+  if(o.p){ try{ const P=decPla(o.p); document.getElementById('pla-k').value=P.k; document.getElementById('pla-lim').value=P.l; PLA.load(P.st); ok.push(MOD_NOMBRE.pla); }catch(e){ mal.push(MOD_NOMBRE.pla); } }
+  activarPestana(['red','emb','pla'].includes(o.m)?o.m:'red');
+  const av=document.getElementById('aviso');
+  if(ok.length||mal.length){
+    av.innerHTML='<span>🔗 '+(ok.length?'Escenario cargado desde un enlace o código QR: <b>'+ok.join(', ')+'</b>. ':'')+(mal.length?'No se pudieron leer los datos de '+mal.join(', ')+'; se mantuvo el caso base.':'')+'</span><button class="btn" id="aviso-base">Volver a los casos base</button>';
+    av.hidden=false; document.getElementById('aviso-base').onclick=volverABase;
+  }
+}
+
+/* --- Código QR (biblioteca qrcode-generator, MIT) --- */
+function crearQR(texto){ if(typeof qrcode!=='function'||!texto) return null; try{ if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8']; const q=qrcode(0,'M'); q.addData(texto); q.make(); return q; }catch(e){ return null; } }
+function qrSVG(q){ const n=q.getModuleCount(), m=4, t=n+2*m; let d='';
+  for(let r=0;r<n;r++){ let c=0; while(c<n){ if(q.isDark(r,c)){ let k=c; while(k<n&&q.isDark(r,k)) k++; d+='M'+(c+m)+','+(r+m)+'h'+(k-c)+'v1h-'+(k-c)+'z'; c=k; } else c++; } }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+t+' '+t+'" shape-rendering="crispEdges" role="img" aria-label="Código QR"><rect width="'+t+'" height="'+t+'" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>'; }
+function qrCanvas(q,celda,rotulo){ const n=q.getModuleCount(), m=4, t=(n+2*m)*celda, extra=rotulo?Math.round(celda*5):0, c=document.createElement('canvas'); c.width=t; c.height=t+extra; const x=c.getContext('2d');
+  x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#000';
+  for(let r=0;r<n;r++) for(let k=0;k<n;k++) if(q.isDark(r,k)) x.fillRect((k+m)*celda,(r+m)*celda,celda,celda);
+  if(rotulo){ x.font='600 '+Math.round(celda*1.9)+'px system-ui,sans-serif'; x.textAlign='center'; x.fillText(rotulo,c.width/2,t+Math.round(celda*2.2)); }
+  return c; }
+
+/* --- Estilos de la hoja del informe (vista previa, impresión y archivo descargado) --- */
+const CSS_HOJA=`:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s7:#6250d6;--s8:#e34948}
+.hoja{background:#fff;color:#161616;max-width:840px;margin:0 auto;padding:34px 42px;border:1px solid #d9d8d2;border-radius:6px;box-shadow:0 2px 16px rgba(0,0,0,.08);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:13.5px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.hoja h1{font-size:1.42rem;line-height:1.25;margin:2px 0 10px}
+.hoja h2{font-size:1.06rem;margin:22px 0 8px;padding-bottom:3px;border-bottom:2px solid #2a78d6;break-after:avoid;page-break-after:avoid}
+.hoja h3{font-size:.9rem;margin:14px 0 6px;color:#333;break-after:avoid;page-break-after:avoid}
+.hoja p{margin:0 0 8px}
+.h-cab{display:flex;gap:20px;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid #cfcfcf}
+.h-sup{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:#1c5fb0;font-weight:700;margin:0 0 4px}
+.h-meta{border-collapse:collapse;font-size:.86rem}
+.h-meta th{text-align:left;color:#555;font-weight:600;padding:1px 12px 1px 0;vertical-align:top;white-space:nowrap}
+.h-qr{margin:0;flex:none;width:178px;text-align:center}
+.h-qr svg{width:170px;height:170px;display:block;margin:0 auto}
+.h-qr figcaption{font-size:.7rem;color:#444;line-height:1.3;margin-top:2px}
+.h-cap{margin:12px 0 4px;font-size:.84rem;line-height:1.35}
+.hoja table.t{border-collapse:collapse;width:100%;font-size:.8rem;margin:0 0 10px;font-variant-numeric:tabular-nums}
+.hoja table.t th,.hoja table.t td{padding:3px 6px;text-align:right;border:0}
+.hoja table.t thead th{border-top:1.5px solid #222;border-bottom:1px solid #222;font-weight:600}
+.hoja table.t tbody tr:last-child td{border-bottom:1.5px solid #222}
+.hoja table.t th:first-child,.hoja table.t td:first-child{text-align:left}
+.hoja table.t.mat{width:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.74rem}
+.hoja table.t.mat td,.hoja table.t.mat th{padding:2px 8px}
+.h-tab{break-inside:avoid;page-break-inside:avoid}
+.est{display:inline-block;padding:1px 8px;border-radius:10px;font-weight:600;font-size:.76rem;white-space:nowrap}
+.est.good{background:#e6f4e6;color:#1b5e20}.est.warn{background:#fff3d6;color:#6d4a00}.est.bad{background:#fdecea;color:#8a1c1c}
+.hoja .ind{padding:9px 12px;border-radius:8px;font-size:.86rem;border:1px solid #d9d8d2;margin:8px 0 10px;break-inside:avoid;page-break-inside:avoid}
+.hoja .ind b{display:block;font-size:.94rem;margin-bottom:2px}
+.hoja .ind.good{background:#e6f4e6;border-color:#b7dcb7}.hoja .ind.warn{background:#fff6e0;border-color:#f0d58a}.hoja .ind.bad{background:#fdecea;border-color:#f5c2c0}
+.hoja .prop{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.8rem;margin-bottom:8px}
+.hoja .prop .k{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#444;white-space:nowrap}
+.hoja .prop small{display:block;color:#6b6a66;font-size:.74rem}
+.h-figs{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media (max-width:700px){.h-figs{grid-template-columns:1fr}}
+.h-fig{margin:0 0 8px;break-inside:avoid;page-break-inside:avoid}
+.h-fig img{width:100%;height:auto;display:block;border:1px solid #ddd;border-radius:4px}
+.h-fig .h-svg svg{width:100%;height:auto;display:block}
+.h-fig figcaption{font-size:.74rem;color:#444;margin-top:4px;line-height:1.35}
+.h-obs p{text-align:justify}
+.h-pie{margin-top:22px;border-top:1px solid #cfcfcf;padding-top:8px;font-size:.7rem;color:#555}
+.h-pie p{margin:0 0 4px}
+.hoja svg text{font-family:system-ui,sans-serif}
+@page{size:A4;margin:14mm}`;
+
+const INF={
+  nt:0, nfg:0, timer:null, tm:null, ultimo:{url:'',tit:''},
+  mods(){ return ['red','emb','pla'].filter(m=>{ const e=document.getElementById('rep-m-'+m); return e&&e.checked; }); },
+  op(k){ const e=document.getElementById('rep-o-'+k); return !e||e.checked; },
+  destino(){
+    const sel=(document.querySelector('input[name=rep-qr]:checked')||{}).value||'sim', base=urlBase();
+    if(sel==='sim') return {url:base+'#'+codificarEstado(INF.mods()), txt:'Escanee para abrir esta simulación con los mismos valores'};
+    if(sel==='inicio') return {url:base, txt:'Escanee para abrir el simulador'};
+    if(sel==='informe') return {url:new URL('informe.html',base).href, txt:'Escanee para leer el informe del proyecto'};
+    if(sel==='manual') return {url:new URL('manual.html',base).href, txt:'Escanee para abrir el manual de usuario'};
+    let u=document.getElementById('rep-otra').value.trim(); try{ u=/^https?:\/\//i.test(u)?new URL(u).href:''; }catch(e){ u=''; }
+    return {url:u, txt:'Escanee para abrir el enlace'};
+  },
+  programar(){ clearTimeout(INF.timer); INF.timer=setTimeout(()=>INF.generar(),350); },
+  msg(t){ const e=document.getElementById('rep-msg'); if(!e) return; e.textContent=t; clearTimeout(INF.tm); INF.tm=setTimeout(()=>{ e.textContent=''; },4000); },
+  tabla(titulo,cab,filas,clase,alin){ INF.nt++; const st=j=>{ const a=alin&&alin[j]; return a?' style="text-align:'+({l:'left',r:'right',c:'center'}[a])+'"':''; }; return '<div class="h-tab"><p class="h-cap"><b>Tabla '+INF.nt+'</b><br><i>'+titulo+'</i></p><table class="t'+(clase?' '+clase:'')+'"><thead><tr>'+cab.map((c,j)=>'<th'+st(j)+'>'+c+'</th>').join('')+'</tr></thead><tbody>'+filas.map(fl=>'<tr>'+fl.map((c,j)=>'<td'+st(j)+'>'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'; },
+  figura(titulo,cont,nota){ INF.nfg++; return '<figure class="h-fig"><p class="h-cap"><b>Figura '+INF.nfg+'</b><br><i>'+titulo+'</i></p>'+cont+(nota?'<figcaption><i>Nota.</i> '+nota+'</figcaption>':'')+'</figure>'; },
+  matriz(titulo,A,filas,cols,dec){ return INF.tabla(titulo,[''].concat(cols),A.map((r,i)=>['<b>'+filas[i]+'</b>'].concat(r.map(a=>f(a,dec)))),'mat'); },
+  indicador(id){ const e=document.getElementById(id); return '<div class="'+esc(e.className)+'">'+e.innerHTML+'</div>'; },
+  props(id){ return INF.op('prop')?'<h3>Propiedades de la transformación</h3><div class="prop">'+document.getElementById(id).innerHTML+'</div>':''; },
+  snap(key){
+    const v=V3.views[key]; if(!v) return null; const t0=v.time;
+    try{
+      if(key==='emb'&&v.onTick){ const K=+document.getElementById('emb-k').value; v.onTick(0,(K+0.25)/1.3); }
+      if(key==='pla'&&v.onTick){ const r=PLA.compute(); v.onTick(0,r.kmax+1e-6); }
+      v.renderer.render(v.scene,v.camera); return v.renderer.domElement.toDataURL('image/jpeg',0.9);
+    }catch(e){ return null; } finally{ v.time=t0; }
+  },
+  figuras(key,t3,n3,t2,n2){
+    const fs=[];
+    if(INF.op('3d')){ const img=INF.snap(key); if(img) fs.push(INF.figura(t3,'<img src="'+img+'" alt="'+esc(t3)+'">',n3)); }
+    if(INF.op('2d')){ const svg=document.getElementById(key+'-svg').innerHTML; if(svg) fs.push(INF.figura(t2,'<div class="h-svg">'+svg+'</div>',n2)); }
+    return fs.length?'<div class="h-figs">'+fs.join('')+'</div>':'';
+  },
+  estado(mod,r){
+    if(mod==='red'){ if(!r.consistente) return {cls:'bad',txt:'✖ Sistema inconsistente'}; const c=r.cobertura; return c>=1.1?{cls:'good',txt:'✔ Sostenible'}:c>=1?{cls:'warn',txt:'▲ En el límite'}:{cls:'bad',txt:'✖ No sostenible'}; }
+    if(mod==='emb'){ if(!r.estoc) return {cls:'bad',txt:'✖ Matriz no estocástica'}; return r.riesgo<=r.th?{cls:'good',txt:'✔ Sostenible'}:r.riesgo<=r.th+0.15?{cls:'warn',txt:'▲ Riesgo moderado'}:{cls:'bad',txt:'✖ No sostenible'}; }
+    if(!r.masaOk) return {cls:'bad',txt:'✖ Matriz inválida'}; if(r.rho>=1) return {cls:'bad',txt:'✖ Sin atenuación'};
+    return r.maxSal<=r.lim?{cls:'good',txt:'✔ Cumple el límite'}:r.kcumple!==null?{cls:'warn',txt:'▲ Incumplimiento transitorio'}:{cls:'bad',txt:'✖ No cumple el límite'};
+  },
+  secRed(s,r){
+    const {N,T}=RED.labels();
+    let h='<section><h2>'+s+'. Red de distribución: balance de masa con la matriz de incidencia</h2>';
+    h+='<p>El balance de masa de la red es la transformación lineal T(<b>q</b>) = A<b>q</b> = <b>d</b>, donde A ('+r.n+' × '+r.m+') es la matriz de incidencia nodo‑tubería, <b>q</b> el vector de caudales (L/s) y <b>d</b> la demanda neta de cada nodo (negativa en la fuente). Capacidad de la fuente: '+f(r.cap,1)+' L/s. Rango de A: '+r.rank+'; dimensión del núcleo: '+(r.m-r.rank)+'.</p>';
+    h+=INF.indicador('red-ind');
+    if(INF.op('ent')){
+      h+=INF.tabla('Tuberías y caudales calculados',['Tubería','Sale de','Llega a','Caudal q (L/s)'],T.map((t,j)=>{ const c=r.A.map(x=>x[j]), a=c.indexOf(-1), b=c.indexOf(1); return [t,a>=0?N[a]:'—',b>=0?N[b]:'—',f(r.q[j],2)]; }),'','lccr');
+      h+=INF.tabla('Demanda neta por nodo y verificación del balance A·q = d',['Nodo','Demanda d (L/s)','A·q (L/s)'],N.map((nn,i)=>[nn,f(r.d[i],2),f(r.Aq[i],2)]));
+      h+=INF.matriz('Matriz de incidencia A (filas: nodos; columnas: tuberías)',r.A,N,T,0);
+    }
+    h+=INF.props('red-prop');
+    h+=INF.figuras('red','Vista 3D de la red de distribución','El grosor de cada tubería y la velocidad de las partículas son proporcionales al caudal; las columnas violetas son las demandas y el tanque verde la fuente.','Esquema de la red con los caudales de la solución','Las flechas siguen el sentido del caudal; el color naranja indica caudal contrario al sentido de la tubería.');
+    return h+'</section>';
+  },
+  secEmb(s,r){
+    const S=EMB.S;
+    let h='<section><h2>'+s+'. Embalse: cadena de Markov de niveles de almacenamiento</h2>';
+    h+='<p>La distribución de probabilidad de los cuatro niveles del embalse evoluciona mes a mes como <b>x</b><sub>k+1</sub> = A<b>x</b><sub>k</sub>. El estado de largo plazo es el autovector π de A asociado al autovalor λ = 1. Horizonte simulado: '+r.K+' meses; umbral de sostenibilidad para P(Bajo + Crítico): '+f(r.th,2)+'.</p>';
+    h+=INF.indicador('emb-ind');
+    if(INF.op('ent')){
+      h+=INF.matriz('Matriz de transición A (columna: estado de origen; fila: estado de destino)',r.A,S,S,3);
+      h+=INF.tabla('Distribución inicial, del mes '+r.K+' y estacionaria',['Estado','x₀','x<sub>'+r.K+'</sub>','π (λ = 1)'],S.map((e,i)=>[e,f(r.x0[i],3),f(r.hist[r.K][i],3),f(r.pi[i],3)]));
+    }
+    h+=INF.props('emb-prop');
+    h+=INF.figuras('emb','Vista 3D del embalse en el mes '+r.K,'A la izquierda, el nivel esperado del embalse; a la derecha, la probabilidad de cada estado (filas) en cada mes (columnas).','Evolución mensual de la distribución de estados','Cada barra apilada es x<sub>k</sub> = A<sup>k</sup>x₀; la línea punteada marca la probabilidad estacionaria de Bajo + Crítico.');
+    if(INF.op('tab')) h+=INF.tabla('Evolución mensual de la distribución de estados',['Mes'].concat(S),r.hist.map((x,k)=>[k].concat(x.map(p=>f(p,3)))));
+    return h+'</section>';
+  },
+  secPla(s,r){
+    const U=PLA.U;
+    let h='<section><h2>'+s+'. Planta de tratamiento: mezcla y atenuación de contaminantes</h2>';
+    h+='<p>La carga contaminante (mg/L) de las tres unidades evoluciona por ciclos como <b>x</b><sub>k+1</sub> = A<b>x</b><sub>k</sub>; si todos los autovalores de A tienen módulo menor que 1, cualquier pulso se atenúa. Ciclos simulados: '+r.K+'; límite normativo de salida: '+f(r.lim,1)+' mg/L; carga inicial: '+fv(r.x0,1)+' mg/L.</p>';
+    h+=INF.indicador('pla-ind');
+    if(INF.op('ent')){
+      h+=INF.tabla('Matriz de mezcla y transferencia A y remoción por ciclo',['','desde '+U[0],'desde '+U[1],'desde '+U[2]],r.A.map((row,i)=>['<b>→ '+U[i]+'</b>'].concat(row.map(a=>f(a,3)))).concat([['<b>Remoción por ciclo</b>'].concat(r.rem.map(x=>f(100*x,1)+' %'))]),'mat');
+    }
+    h+=INF.props('pla-prop');
+    h+=INF.figuras('pla','Vista 3D de la planta en el ciclo de máxima carga de salida (ciclo '+r.kmax+')','La altura del relleno de cada tanque es la carga en ese ciclo; el anillo rojo marca el límite normativo en el sedimentador.','Carga por unidad en cada ciclo de tratamiento','La línea discontinua roja es el límite normativo de salida.');
+    if(INF.op('tab')) h+=INF.tabla('Carga por unidad en cada ciclo (mg/L)',['Ciclo'].concat(U).concat(['Total']),r.hist.map((x,k)=>[k].concat(x.map(a=>f(a,2))).concat([f(x.reduce((t,a)=>t+a,0),2)])));
+    return h+'</section>';
+  },
+  generar(){
+    INF.nt=0; INF.nfg=0;
+    const mods=INF.mods(), des=INF.destino(), q=crearQR(des.url), val=id=>document.getElementById(id).value.trim();
+    const tit=val('rep-tit')||'Informe de simulación', aut=val('rep-aut'), ins=val('rep-ins'), fec=val('rep-fecha'), obs=val('rep-obs'), ahora=new Date();
+    let fechaTxt=fec; try{ fechaTxt=(fec?new Date(fec+'T12:00:00'):ahora).toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'}); }catch(e){}
+    let generado=ahora.toString(); try{ generado=ahora.toLocaleString('es-CO',{dateStyle:'long',timeStyle:'short'}); }catch(e){}
+    document.getElementById('rep-qr').innerHTML=q?qrSVG(q):'<span class="ayuda" style="padding:6px;text-align:center">Sin enlace válido</span>';
+    document.getElementById('rep-enlace').textContent=des.url||'Escriba una dirección que empiece por https://';
+    INF.ultimo={url:des.url,tit};
+    const R={}; if(mods.includes('red')) R.red=RED.compute(); if(mods.includes('emb')) R.emb=EMB.compute(); if(mods.includes('pla')) R.pla=PLA.compute();
+    let h='<article class="hoja"><div class="h-cab"><div class="h-tit"><p class="h-sup">Informe de simulación · Transformaciones lineales en ingeniería del agua</p><h1>'+esc(tit)+'</h1><table class="h-meta">'
+      +(aut?'<tr><th>Autor(es)</th><td>'+esc(aut)+'</td></tr>':'')
+      +(ins?'<tr><th>Institución / curso</th><td>'+esc(ins)+'</td></tr>':'')
+      +'<tr><th>Fecha</th><td>'+esc(fechaTxt)+'</td></tr><tr><th>Sistemas</th><td>'+(mods.length?mods.map(m=>MOD_NOMBRE[m]).join(', '):'—')+'</td></tr></table></div>'
+      +(q?'<figure class="h-qr">'+qrSVG(q)+'<figcaption>'+esc(des.txt)+'</figcaption></figure>':'')+'</div>';
+    let s=0;
+    if(mods.length){ s++;
+      h+='<section><h2>'+s+'. Resumen de indicadores de sostenibilidad (ODS 6)</h2>'+INF.tabla('Indicador de sostenibilidad de cada sistema simulado',['Sistema','Indicador','Valor','Estado'],mods.map(m=>{ const r=R[m], e=INF.estado(m,r);
+        const fila=m==='red'?['Red de distribución','Índice de cobertura = capacidad / demanda',r.consistente?f(r.cobertura,2):'—']:m==='emb'?['Embalse','P(Bajo + Crítico) a largo plazo (umbral '+f(r.th,2)+')',r.estoc?f(r.riesgo,3):'—']:['Planta de tratamiento','Pico de salida / límite normativo (mg/L)',f(r.maxSal,1)+' / '+f(r.lim,1)];
+        return fila.concat('<span class="est '+e.cls+'">'+e.txt+'</span>'); }),'','llrl')+'</section>'; }
+    if(R.red){ s++; h+=INF.secRed(s,R.red); }
+    if(R.emb){ s++; h+=INF.secEmb(s,R.emb); }
+    if(R.pla){ s++; h+=INF.secPla(s,R.pla); }
+    if(obs){ s++; h+='<section><h2>'+s+'. Observaciones y conclusiones</h2><div class="h-obs">'+obs.split(/\n\s*\n/).map(p=>'<p>'+esc(p).replace(/\n/g,'<br>')+'</p>').join('')+'</div></section>'; }
+    h+='<div class="h-pie"><p>Generado el '+esc(generado)+' con el <i>Simulador 3D de transformaciones lineales en ingeniería del agua y desarrollo sostenible</i>, versión '+VERSION+' ('+esc(urlBase())+'). Validación interna del simulador: '+esc(document.getElementById('val-txt').textContent)+'. Los cálculos se hacen en el navegador; el código QR solo contiene la dirección del simulador y los valores numéricos de la simulación.</p>'
+      +'<p><b>Cómo citar el simulador (APA 7):</b> Peñaloza Fernández, A. M. (2026). <i>Simulador 3D de transformaciones lineales en ingeniería del agua y desarrollo sostenible</i> (Versión '+VERSION+') [Software]. GitHub. '+esc(URL_PUBLICA)+'</p></div></article>';
+    document.getElementById('rep-sheet').innerHTML=h;
+  },
+  nombre(ext){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return 'informe_simulacion_'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+ext; },
+  descargarHTML(){
+    INF.generar();
+    const doc='<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'+esc(INF.ultimo.tit)+'</title><style>'+CSS_HOJA+'\nbody{margin:0;background:#e4e3de;padding:24px}@media print{body{background:#fff;padding:0}.hoja{border:0;box-shadow:none;max-width:none;padding:0;border-radius:0}}</style></head><body>'+document.getElementById('rep-sheet').innerHTML+'</body></html>';
+    descargarBlob(INF.nombre('.html'),new Blob([doc],{type:'text/html;charset=utf-8'})); INF.msg('Informe descargado.');
+  },
+  descargarQR(){
+    const q=crearQR(INF.ultimo.url); if(!q){ INF.msg('No hay un enlace válido para el QR.'); return; }
+    const c=qrCanvas(q,12,'Escanee para abrir');
+    if(c.toBlob) c.toBlob(b=>{ if(b) descargarBlob('codigo_qr_simulacion.png',b); },'image/png');
+    INF.msg('QR descargado.');
+  },
+  copiar(){
+    const u=INF.ultimo.url; if(!u){ INF.msg('No hay enlace para copiar.'); return; }
+    const manual=()=>{ const ta=document.createElement('textarea'); ta.value=u; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); INF.msg(ok?'Enlace copiado.':'Seleccione el enlace y cópielo con Ctrl+C.'); };
+    try{ navigator.clipboard.writeText(u).then(()=>INF.msg('Enlace copiado.'),manual); }catch(e){ manual(); }
+  },
+  iniciar(){
+    document.head.insertAdjacentHTML('beforeend','<style id="css-hoja">'+CSS_HOJA+'</style>');
+    const hoy=new Date(); document.getElementById('rep-fecha').value=new Date(hoy.getTime()-hoy.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    document.getElementById('rep-base').value=sitioBase();
+    document.querySelectorAll('#m-rep .rep-form input, #m-rep .rep-form textarea').forEach(e=>{ e.addEventListener('input',INF.programar); e.addEventListener('change',INF.programar); });
+    document.getElementById('rep-otra').addEventListener('focus',()=>{ document.querySelector('input[name=rep-qr][value=otra]').checked=true; });
+    document.getElementById('rep-act').onclick=()=>{ INF.generar(); INF.msg('Vista previa actualizada.'); };
+    document.getElementById('rep-imprimir').onclick=()=>{ INF.generar(); setTimeout(()=>{ try{ window.print(); }catch(e){} },80); };
+    document.getElementById('rep-html').onclick=INF.descargarHTML;
+    document.getElementById('rep-png').onclick=INF.descargarQR;
+    document.getElementById('rep-copiar').onclick=INF.copiar;
+    window.addEventListener('beforeprint',()=>{ if(document.body.classList.contains('tab-rep')) INF.generar(); });
+  }
+};
+
 /* =================== Validación interna =================== */
 function validar(){
   const checks=[]; const near=(a,b,t=1e-3)=>Math.abs(a-b)<t;
@@ -653,23 +1068,28 @@ function validar(){
 }
 
 /* =================== Inicialización =================== */
-document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.module').forEach(m=>m.classList.remove('active')); document.getElementById('m-'+b.dataset.m).classList.add('active'); V3.active=b.dataset.m; const v=V3.views[V3.active]; if(v) v.resize(); }));
+document.querySelectorAll('nav button[data-m]').forEach(b=>b.addEventListener('click',()=>activarPestana(b.dataset.m)));
 document.querySelectorAll('#m-red .scen').forEach(b=>b.addEventListener('click',()=>RED.load(RED.scen[b.dataset.s]())));
 document.querySelectorAll('#m-emb .scen').forEach(b=>b.addEventListener('click',()=>EMB.load(EMB.scen[b.dataset.s]())));
 document.querySelectorAll('#m-pla .scen').forEach(b=>b.addEventListener('click',()=>PLA.load(PLA.scen[b.dataset.s]())));
 document.getElementById('red-calc').onclick=()=>RED.calc(); document.getElementById('red-reset').onclick=()=>RED.load(RED.base());
 document.getElementById('red-csv').onclick=()=>exportCSV('red'); document.getElementById('red-json').onclick=()=>exportJSON('red');
-document.getElementById('red-cap').addEventListener('change',()=>RED.calc());
+document.getElementById('red-cap').addEventListener('input',()=>RED.calc());
+document.getElementById('red-addn').onclick=()=>RED.addNode(); document.getElementById('red-addp').onclick=()=>RED.addPipe(); document.getElementById('red-deln').onclick=()=>RED.delNode(); document.getElementById('red-auto').addEventListener('change',()=>RED.calc());
 document.getElementById('red-resize').onclick=()=>{ const n=+document.getElementById('red-n').value, m=+document.getElementById('red-m').value; const s={A:Array.from({length:n},()=>Array(m).fill(0)),d:Array(n).fill(0),cap:60}; RED.state.A.forEach((r,i)=>r.forEach((a,j)=>{ if(i<n&&j<m) s.A[i][j]=a; })); RED.state.d.forEach((a,i)=>{ if(i<n) s.d[i]=a; }); RED.load(s); };
 document.getElementById('emb-calc').onclick=()=>EMB.calc(); document.getElementById('emb-reset').onclick=()=>EMB.load(EMB.base());
 document.getElementById('emb-csv').onclick=()=>exportCSV('emb'); document.getElementById('emb-json').onclick=()=>exportJSON('emb');
-document.getElementById('emb-k').addEventListener('input',()=>EMB.calc()); document.getElementById('emb-th').addEventListener('change',()=>EMB.calc());
+document.getElementById('emb-k').addEventListener('input',()=>EMB.calc()); document.getElementById('emb-th').addEventListener('input',()=>EMB.calc());
 document.getElementById('pla-calc').onclick=()=>PLA.calc(); document.getElementById('pla-reset').onclick=()=>PLA.load(PLA.base());
 document.getElementById('pla-csv').onclick=()=>exportCSV('pla'); document.getElementById('pla-json').onclick=()=>exportJSON('pla');
-document.getElementById('pla-k').addEventListener('input',()=>PLA.calc()); document.getElementById('pla-lim').addEventListener('change',()=>PLA.calc());
+document.getElementById('pla-k').addEventListener('input',()=>PLA.calc()); document.getElementById('pla-lim').addEventListener('input',()=>PLA.calc());
 
+document.getElementById('emb-norm').onclick=()=>{ const A=EMB.state.A; A[0].forEach((_,j)=>{ const t=A.reduce((a,r)=>a+Math.max(0,r[j]),0); A.forEach(r=>{ r[j]=t>0?Math.max(0,r[j])/t:1/A.length; }); }); const x=EMB.state.x, tx=x.reduce((a,b)=>a+Math.max(0,b),0); x.forEach((_,i)=>{ x[i]=tx>0?Math.max(0,x[i])/tx:1/x.length; }); EMB.render(); EMB.calc(); };
 validar();
 RED.load(RED.base()); EMB.load(EMB.base()); PLA.load(PLA.base());
+INF.iniciar();
+aplicarHash();
+window.addEventListener('hashchange', aplicarHash);
 </script>
 </body>
 </html>
